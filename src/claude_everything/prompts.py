@@ -187,6 +187,7 @@ TASK_DESCRIPTION = """Launch a new agent to handle complex, multi-step tasks aut
 
 Available agent types and the tools they have access to:
 - general-purpose: General-purpose agent for researching complex questions, searching for files and content, and executing multi-step tasks. When you are searching for a keyword or file and are not confident that you will find the right match in the first few tries use this agent to perform the search for you. (Tools: *)
+{other_agents}
 
 When using the Task tool, you must specify a subagent_type parameter to select which agent type to use.
 

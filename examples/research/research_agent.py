@@ -4,7 +4,7 @@ from typing import Literal
 from tavily import TavilyClient
 
 
-from claude_everything.graph import create_deep_agent
+from claude_everything import create_deep_agent, SubAgent
 
 
 
@@ -22,7 +22,7 @@ def internet_search(query, max_results: int = 5, topic: Literal["general", "news
 
 
 # Prompt prefix to steer the agent to be an expert researcher
-research_prompt_prefix = """You are an expert researcher. Your job is to write a through research report.
+research_prompt_prefix = """You are an expert researcher. Your job is to conduct thorough research, and then write a polished report.
 
 You have access to a few tools.
 
