@@ -4,7 +4,7 @@ from typing import Literal
 from tavily import TavilyClient
 
 
-from claude_everything import create_deep_agent, SubAgent
+from deepagent import create_deep_agent, SubAgent
 
 
 # Search tool to use to do research

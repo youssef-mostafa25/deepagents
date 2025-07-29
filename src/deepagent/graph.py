@@ -1,7 +1,7 @@
-from claude_everything.sub_agent import create_task_tool
-from claude_everything.model import model
-from claude_everything.tools import write_todos, write_file, read_file, ls, edit_file
-from claude_everything.state import DeepAgentState
+from deepagent.sub_agent import create_task_tool
+from deepagent.model import model
+from deepagent.tools import write_todos, write_file, read_file, ls, edit_file
+from deepagent.state import DeepAgentState
 
 from langgraph.prebuilt import create_react_agent
 

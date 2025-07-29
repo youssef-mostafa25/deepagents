@@ -1,4 +1,20 @@
-# Claude Everything
+# Deep Agent
+
+Using an LLM to call tools in a loop is the simplest form of an agent. 
+This architecture, however, can yield agents that are “shallow” and fail to plan and act over longer, more complex tasks. 
+Applications like “Deep Research”, “Manus, and “Claude Code” have gotten around this limitation by implementing a combination of four things:
+a **planning tool**, **sub agents**, access to a **file system**, and a **detailed prompt**.
+
+`deepagents` is a Python package that implements these in a general purpose way so that you can easily create a Deep Agent for your application.
+
+## Installation
+
+```bash
+pip install deepagent
+```
+
+## Usage
+
 
 A general-purpose AI agent built with LangGraph that includes two default tools:
 1. **Sub-agent spawning**: Create new agent instances for handling subtasks
@@ -15,7 +31,7 @@ A general-purpose AI agent built with LangGraph that includes two default tools:
 ## Installation
 
 ```bash
-pip install claude_everything
+pip install deepagent
 ```
 
 Or you can install from source
