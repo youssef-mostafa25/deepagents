@@ -20,17 +20,12 @@ It is critical that you mark todos as completed as soon as you are done with a t
 
 def create_deep_agent(tools, prompt_prefix, state_schema=None, subagents=None):
     prompt = prompt_prefix + base_prompt
+    built_in_tools = [write_todos, write_file, read_file, ls, edit_file]
+    task_tool = create_task_tool(tools + built_in_tools, prompt_prefix, subagents)
+    all_tools = built_in_tools + tools + [task_tool]
     return create_react_agent(
         model,
         prompt=prompt,
-        tools=[
-            create_task_tool(tools, prompt_prefix, subagents),
-            write_todos,
-            write_file,
-            read_file,
-            ls,
-            edit_file,
-        ]
-        + tools,
+        tools=all_tools,
         state_schema=state_schema or DeepAgentState,
     )

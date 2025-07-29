@@ -1,2 +1,3 @@
+deepagent
 langgraph-cli[inmem]
 tavily-python

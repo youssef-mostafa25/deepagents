@@ -6,7 +6,7 @@ from langchain_core.tools import BaseTool
 from typing import TypedDict
 from langchain_core.tools import tool, InjectedToolCallId
 from langchain_core.messages import ToolMessage
-from typing import Annotated
+from typing import Annotated, NotRequired
 from langgraph.types import Command
 
 from langgraph.prebuilt import InjectedState
@@ -16,7 +16,7 @@ class SubAgent(TypedDict):
     name: str
     description: str
     prompt: str
-    tools: list[str]
+    tools: NotRequired[list[str]]
 
 
 def create_task_tool(tools, prompt_prefix, subagents: list[SubAgent]):
