@@ -9,7 +9,7 @@ from deepagent import create_deep_agent, SubAgent
 
 # Search tool to use to do research
 def internet_search(
-    query,
+    query: str,
     max_results: int = 5,
     topic: Literal["general", "news", "finance"] = "general",
     include_raw_content: bool = False,
