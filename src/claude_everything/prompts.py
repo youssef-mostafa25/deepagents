@@ -183,13 +183,14 @@ The assistant did not use the todo list because this is a single information loo
 
 When in doubt, use this tool. Being proactive with task management demonstrates attentiveness and ensures you complete all requirements successfully."""
 
-TASK_DESCRIPTION = """Launch a new agent to handle complex, multi-step tasks autonomously. 
+TASK_DESCRIPTION_PREFIX = """Launch a new agent to handle complex, multi-step tasks autonomously. 
 
 Available agent types and the tools they have access to:
 - general-purpose: General-purpose agent for researching complex questions, searching for files and content, and executing multi-step tasks. When you are searching for a keyword or file and are not confident that you will find the right match in the first few tries use this agent to perform the search for you. (Tools: *)
 {other_agents}
+"""
 
-When using the Task tool, you must specify a subagent_type parameter to select which agent type to use.
+TASK_DESCRIPTION_SUFFIX = """When using the Task tool, you must specify a subagent_type parameter to select which agent type to use.
 
 When to use the Agent tool:
 - When you are instructed to execute custom slash commands. Use the Agent tool with the slash command invocation as the entire prompt. The slash command can take arguments. For example: Task(description="Check the file", prompt="/check-file path/to/file.py")

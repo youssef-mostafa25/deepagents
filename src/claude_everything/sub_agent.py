@@ -1,5 +1,5 @@
 from claude_everything.model import model
-from claude_everything.prompts import TASK_DESCRIPTION
+from claude_everything.prompts import TASK_DESCRIPTION_PREFIX, TASK_DESCRIPTION_SUFFIX
 from langgraph.prebuilt import create_react_agent
 from langchain_core.tools import tool, BaseTool
 from typing import TypedDict
@@ -25,15 +25,19 @@ def create_task_tool(tools, prompt_prefix, custom_agents: list[SubAgent]):
             tool_ = tool(tool_)
         tools_by_name[tool_.name] = tool_
     for _agent in custom_agents:
+        if "tools" in _agent:
+            _tools = [tools_by_name[t] for t in _agent['tools']]
+        else:
+            _tools = tools
         agents[_agent['name']]: create_react_agent(
             model,
             prompt=_agent['prompt'],
-            tools=[tools_by_name[t] for t in _agent['tools']]
+            tools=_tools
         )
 
     other_agents_string = [f"- {_agent['name']}: {_agent['description']}" for _agent in custom_agents]
 
-    @tool(description=TASK_DESCRIPTION.format(other_agents=other_agents_string))
+    @tool(description=TASK_DESCRIPTION_PREFIX.format(other_agents=other_agents_string) + TASK_DESCRIPTION_SUFFIX)
     def task(description: str, subagent_type: str):
         if subagent_type not in agents:
             return f"Error: invoked agent of type {subagent_type}, the only allowed types are {[f'`{k}`' for k in agents]}"

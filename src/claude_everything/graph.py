@@ -18,11 +18,11 @@ It is critical that you mark todos as completed as soon as you are done with a t
 - When doing web search, prefer to use the `task` tool in order to reduce context usage."""
 
 
-def create_deep_agent(tools, prompt_prefix, state_schema=None, custom_agents=None):
+def create_deep_agent(tools, prompt_prefix, state_schema=None, subagents=None):
     prompt = prompt_prefix + base_prompt
     return create_react_agent(
         model,
         prompt=prompt,
-        tools=[create_task_tool(tools, prompt_prefix, custom_agents), write_todos, write_file, read_file, ls, edit_file] + tools ,
+        tools=[create_task_tool(tools, prompt_prefix, subagents), write_todos, write_file, read_file, ls, edit_file] + tools ,
         state_schema=state_schema or DeepAgentState
     )
