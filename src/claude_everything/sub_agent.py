@@ -58,7 +58,7 @@ def create_task_tool(tools, prompt_prefix, subagents: list[SubAgent]):
         result = sub_agent.invoke(state)
         return Command(
             update={
-                "files": result["files"],
+                "files": result.get("files", {}),
                 "messages": [
                     ToolMessage(
                         result["messages"][-1].content, tool_call_id=tool_call_id
