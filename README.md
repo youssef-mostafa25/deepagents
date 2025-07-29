@@ -12,7 +12,7 @@ a **planning tool**, **sub agents**, access to a **file system**, and a **detail
 ## Installation
 
 ```bash
-pip install deepagent
+pip install deepagents
 ```
 
 ## Usage
@@ -24,7 +24,7 @@ import os
 from typing import Literal
 
 from tavily import TavilyClient
-from deepagent import create_deep_agent
+from deepagents import create_deep_agent
 
 
 # Search tool to use to do research
@@ -127,7 +127,7 @@ These are the built in
 
 ### System Prompt
 
-`deepagent` comes with a [built-in system prompt]((src/deepagent/prompts.py)). This is relatively detailed prompt that is heavily based on and inspired by [attempts](https://github.com/kn1026/cc/blob/main/claudecode.md) to [replicate](https://github.com/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-code.md)
+`deepagents` comes with a [built-in system prompt]((src/deepagents/prompts.py)). This is relatively detailed prompt that is heavily based on and inspired by [attempts](https://github.com/kn1026/cc/blob/main/claudecode.md) to [replicate](https://github.com/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-code.md)
 Claude Code's system prompt. It was made more general purpose than Claude Code's system prompt.
 This contains detailed instructions for how to use the built-in planning tool, file system tools, and sub agents.
 Note that part of this system prompt [can be customized](#promptprefix--required-)
@@ -137,12 +137,12 @@ The importance of prompting for creating a "deep" agent cannot be understated.
 
 ### Planing Tool
 
-`deepagent` comes with a built-in planning tool. This planning tool is very simple and is based on ClaudeCode's TodoWrite tool.
+`deepagents` comes with a built-in planning tool. This planning tool is very simple and is based on ClaudeCode's TodoWrite tool.
 This tool doesn't actually do anything - it is just a way for the agent to come up with a plan, and then have that in the context to help keep it on track.
 
 ### File System Tools
 
-`deepagent` comes with four built-in file system tools: `ls`, `edit_file`, `read_file`, `write_file`.
+`deepagents` comes with four built-in file system tools: `ls`, `edit_file`, `read_file`, `write_file`.
 These do not actually use a file system - rather, they mock out a file system using LangGraph's State object.
 This means you can easily run many of these agents on the same machine without worrying that they will edit the same underlying files.
 
@@ -165,7 +165,7 @@ result["files"]
 
 ### Sub Agents
 
-`deepagent` comes with the built-in ability to call sub agents (based on Claude Code).
+`deepagents` comes with the built-in ability to call sub agents (based on Claude Code).
 It has access to a `general-purpose` subagent at all times, but you can also specify [custom sub agents](#subagents--optional-).
 
 ## Roadmap

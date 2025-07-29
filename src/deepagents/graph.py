@@ -1,7 +1,7 @@
-from deepagent.sub_agent import create_task_tool
-from deepagent.model import model
-from deepagent.tools import write_todos, write_file, read_file, ls, edit_file
-from deepagent.state import DeepAgentState
+from deepagents.sub_agent import create_task_tool
+from deepagents.model import model
+from deepagents.tools import write_todos, write_file, read_file, ls, edit_file
+from deepagents.state import DeepAgentState
 
 from langgraph.prebuilt import create_react_agent
 

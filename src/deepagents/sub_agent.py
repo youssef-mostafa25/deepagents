@@ -1,6 +1,6 @@
-from deepagent.model import model
-from deepagent.prompts import TASK_DESCRIPTION_PREFIX, TASK_DESCRIPTION_SUFFIX
-from deepagent.state import DeepAgentState
+from deepagents.model import model
+from deepagents.prompts import TASK_DESCRIPTION_PREFIX, TASK_DESCRIPTION_SUFFIX
+from deepagents.state import DeepAgentState
 from langgraph.prebuilt import create_react_agent
 from langchain_core.tools import BaseTool
 from typing import TypedDict

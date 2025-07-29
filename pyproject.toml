@@ -1,5 +1,5 @@
 [project]
-name = "deepagent"
+name = "deepagents"
 version = "0.0.1"
 description = "General purpose 'deep agent' with sub-agent spawning, todo list capabilities, and mock file system. Built on LangGraph."
 readme = "README.md"
@@ -17,9 +17,9 @@ requires = ["setuptools>=73.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["deepagent"]
+packages = ["deepagents"]
 [tool.setuptools.package-dir]
-"deepagent" = "src/deepagent"
+"deepagents" = "src/deepagents"
 
 [tool.setuptools.package-data]
 "*" = ["py.typed"]
