@@ -1,38 +1,45 @@
-
-from langchain_core.tools import tool,  InjectedToolCallId
+from langchain_core.tools import tool, InjectedToolCallId
 from langgraph.types import Command
 from langchain_core.messages import ToolMessage
 from typing import Annotated
 from langgraph.prebuilt import InjectedState
 
-from claude_everything.prompts import WRITE_TODOS_DESCRIPTION, EDIT_DESCRIPTION, TOOL_DESCRIPTION
+from claude_everything.prompts import (
+    WRITE_TODOS_DESCRIPTION,
+    EDIT_DESCRIPTION,
+    TOOL_DESCRIPTION,
+)
 from claude_everything.state import Todo, DeepAgentState
-
 
 
 @tool(description=WRITE_TODOS_DESCRIPTION)
 def write_todos(
-    todos: list[Todo],
-    tool_call_id: Annotated[str, InjectedToolCallId]
+    todos: list[Todo], tool_call_id: Annotated[str, InjectedToolCallId]
 ) -> Command:
-    return Command(update={
-        "todos": todos,
-        "messages": [
-            ToolMessage(f"Updated todo list to {todos}", tool_call_id=tool_call_id)
-        ]
-    })
+    return Command(
+        update={
+            "todos": todos,
+            "messages": [
+                ToolMessage(f"Updated todo list to {todos}", tool_call_id=tool_call_id)
+            ],
+        }
+    )
 
 
 def ls(state: Annotated[DeepAgentState, InjectedState]) -> list[str]:
     """List all files"""
-    return list(state.get('files', {}).keys())
+    return list(state.get("files", {}).keys())
 
 
 @tool(description=TOOL_DESCRIPTION)
-def read_file(file_path: str, state: Annotated[DeepAgentState, InjectedState], offset: int = 0, limit: int = 2000,
-              ) -> str:
+def read_file(
+    file_path: str,
+    state: Annotated[DeepAgentState, InjectedState],
+    offset: int = 0,
+    limit: int = 2000,
+) -> str:
     """Read file."""
-    mock_filesystem = state.get('files', {})
+    mock_filesystem = state.get("files", {})
     if file_path not in mock_filesystem:
         return f"Error: File '{file_path}' not found"
 
@@ -70,24 +77,36 @@ def read_file(file_path: str, state: Annotated[DeepAgentState, InjectedState], o
     return "\n".join(result_lines)
 
 
-def write_file(file_path: str, content: str, state: Annotated[DeepAgentState, InjectedState],
-               tool_call_id: Annotated[str, InjectedToolCallId]) -> Command:
+def write_file(
+    file_path: str,
+    content: str,
+    state: Annotated[DeepAgentState, InjectedState],
+    tool_call_id: Annotated[str, InjectedToolCallId],
+) -> Command:
     """Write to a file."""
-    files = state.get('files', {})
+    files = state.get("files", {})
     files[file_path] = content
-    return Command(update={
-        "files": files,
-        "messages": [
-            ToolMessage(f"Updated file {file_path}", tool_call_id=tool_call_id)
-        ]})
+    return Command(
+        update={
+            "files": files,
+            "messages": [
+                ToolMessage(f"Updated file {file_path}", tool_call_id=tool_call_id)
+            ],
+        }
+    )
 
 
 @tool(description=EDIT_DESCRIPTION)
-def edit_file(file_path: str, old_string: str, new_string: str, state: Annotated[DeepAgentState, InjectedState],
-              tool_call_id: Annotated[str, InjectedToolCallId],replace_all: bool = False,
-              ) -> str:
+def edit_file(
+    file_path: str,
+    old_string: str,
+    new_string: str,
+    state: Annotated[DeepAgentState, InjectedState],
+    tool_call_id: Annotated[str, InjectedToolCallId],
+    replace_all: bool = False,
+) -> str:
     """Write to a file."""
-    mock_filesystem = state.get('files', {})
+    mock_filesystem = state.get("files", {})
     # Check if file exists in mock filesystem
     if file_path not in mock_filesystem:
         return f"Error: File '{file_path}' not found"
@@ -113,14 +132,18 @@ def edit_file(file_path: str, old_string: str, new_string: str, state: Annotated
         replacement_count = content.count(old_string)
         result_msg = f"Successfully replaced {replacement_count} instance(s) of the string in '{file_path}'"
     else:
-        new_content = content.replace(old_string, new_string, 1)  # Replace only first occurrence
+        new_content = content.replace(
+            old_string, new_string, 1
+        )  # Replace only first occurrence
         result_msg = f"Successfully replaced string in '{file_path}'"
 
     # Update the mock filesystem
     mock_filesystem[file_path] = new_content
-    return Command(update={
-        "files": mock_filesystem,
-        "messages": [
-            ToolMessage(f"Updated file {file_path}", tool_call_id=tool_call_id)
-        ]})
-
+    return Command(
+        update={
+            "files": mock_filesystem,
+            "messages": [
+                ToolMessage(f"Updated file {file_path}", tool_call_id=tool_call_id)
+            ],
+        }
+    )

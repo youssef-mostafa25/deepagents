@@ -23,6 +23,14 @@ def create_deep_agent(tools, prompt_prefix, state_schema=None, subagents=None):
     return create_react_agent(
         model,
         prompt=prompt,
-        tools=[create_task_tool(tools, prompt_prefix, subagents), write_todos, write_file, read_file, ls, edit_file] + tools ,
-        state_schema=state_schema or DeepAgentState
+        tools=[
+            create_task_tool(tools, prompt_prefix, subagents),
+            write_todos,
+            write_file,
+            read_file,
+            ls,
+            edit_file,
+        ]
+        + tools,
+        state_schema=state_schema or DeepAgentState,
     )

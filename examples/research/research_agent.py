@@ -7,18 +7,23 @@ from tavily import TavilyClient
 from claude_everything import create_deep_agent, SubAgent
 
 
-
 # Search tool to use to do research
-def internet_search(query, max_results: int = 5, topic: Literal["general", "news", "finance"] = "general", include_raw_content: bool = False):
+def internet_search(
+    query,
+    max_results: int = 5,
+    topic: Literal["general", "news", "finance"] = "general",
+    include_raw_content: bool = False,
+):
     """Run a web search"""
     tavily_async_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
     search_docs = tavily_async_client.search(
-            query,
-            max_results=max_results,
-            include_raw_content=include_raw_content,
-            topic=topic
-        )
+        query,
+        max_results=max_results,
+        include_raw_content=include_raw_content,
+        topic=topic,
+    )
     return search_docs
+
 
 sub_research_prompt = """You are a dedicated researcher. Your job is to conduct research based on the users questions.
 
@@ -27,7 +32,7 @@ Conduct thorough research and then reply to the user with a detailed answer to t
 research_sub_agent = {
     "name": "research-agent",
     "description": "Used to research more in depth questions",
-    "prompt": sub_research_prompt
+    "prompt": sub_research_prompt,
 }
 
 sub_critique_prompt = """You are a dedicated editor. You are being tasked to critique a report.
@@ -45,7 +50,7 @@ Do not write to the `final_report.md` yourself."""
 critique_sub_agent = {
     "name": "critique-agent",
     "description": "Used to critique the final report. Give this agent some infomration about how you want it to critique the report.",
-    "prompt": sub_critique_prompt
+    "prompt": sub_critique_prompt,
 }
 
 
@@ -144,5 +149,5 @@ Use this to run an internet search for a given query. You can specify the number
 agent = create_deep_agent(
     [internet_search],
     research_prompt_prefix,
-    subagents = [critique_sub_agent, research_sub_agent]
+    subagents=[critique_sub_agent, research_sub_agent],
 ).with_config({"recursion_limit": 1000})
