@@ -89,6 +89,7 @@ Note that there is a [built in system prompt](#built-in-prompt) as well, so this
 
 A keyword-only argument to `create_deep_agent` is `subagents`.
 This can be used to specify any custom subagents this deep agent will have access to.
+You can read more about why you would want to use subagents [here](#sub-agents)
 
 `subagents` should be a list of dictionaries, where each dictionary follow this schema:
 
@@ -171,7 +172,11 @@ result["files"]
 ### Sub Agents
 
 `deepagents` comes with the built-in ability to call sub agents (based on Claude Code).
-It has access to a `general-purpose` subagent at all times, but you can also specify [custom sub agents](#subagents--optional-).
+It has access to a `general-purpose` subagent at all times - this is a subagent with the same instructions as the main agent and all the tools that is has access to.
+You can also specify [custom sub agents](#subagents--optional-) with their own instructions and tools.
+
+Sub agents are useful for ["context quarantine"](https://www.dbreunig.com/2025/06/26/how-to-fix-your-context.html#context-quarantine) (to help not pollute the overall context of the main agent)
+as well as custom instructions.
 
 ## Roadmap
 [] Allow users to customize full system prompt
