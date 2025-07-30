@@ -65,7 +65,7 @@ critique_sub_agent = {
 
 
 # Prompt prefix to steer the agent to be an expert researcher
-research_prompt_prefix = """You are an expert researcher. Your job is to conduct thorough research, and then write a polished report.
+research_instructions = """You are an expert researcher. Your job is to conduct thorough research, and then write a polished report.
 
 The first thing you should do is to write the original user question to `question.txt` so you have a record of it.
 
@@ -158,6 +158,6 @@ Use this to run an internet search for a given query. You can specify the number
 # Create the agent
 agent = create_deep_agent(
     [internet_search],
-    research_prompt_prefix,
+    research_instructions,
     subagents=[critique_sub_agent, research_sub_agent],
 ).with_config({"recursion_limit": 1000})

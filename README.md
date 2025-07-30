@@ -45,7 +45,7 @@ def internet_search(
 
 
 # Prompt prefix to steer the agent to be an expert researcher
-research_prompt_prefix = """You are an expert researcher. Your job is to conduct thorough research, and then write a polished report.
+research_instructions = """You are an expert researcher. Your job is to conduct thorough research, and then write a polished report.
 
 You have access to a few tools.
 
@@ -57,7 +57,7 @@ Use this to run an internet search for a given query. You can specify the number
 # Create the agent
 agent = create_deep_agent(
     [internet_search],
-    research_prompt_prefix,
+    research_instructions,
 )
 
 # Invoke the agent
@@ -79,9 +79,9 @@ The first argument to `create_deep_agent` is `tools`.
 This should be a list of functions or LangChain `@tool` objects.
 The agent (and any subagents) will have access to these tools.
 
-### `prompt_prefix` (Required)
+### `instructions` (Required)
 
-The second argument to `create_deep_agent` is `prompt_prefix`.
+The second argument to `create_deep_agent` is `instructions`.
 This will serve as part of the prompt of the deep agent.
 Note that there is a [built in system prompt](#built-in-prompt) as well, so this is not the *entire* prompt the agent will see.
 
