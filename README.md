@@ -1,4 +1,4 @@
-# Deep Agent
+# Deep Agents
 
 Using an LLM to call tools in a loop is the simplest form of an agent. 
 This architecture, however, can yield agents that are “shallow” and fail to plan and act over longer, more complex tasks. 
@@ -120,6 +120,11 @@ agent = create_deep_agent(
     subagents=subagents
 )
 ```
+
+### `model` (Optional)
+
+By default, `deepagents` will use `"claude-sonnet-4-20250514"`. If you want to use a different model,
+you can pass a [LangChain model object](https://python.langchain.com/docs/integrations/chat/).
 
 ## Deep Agent Details
 
