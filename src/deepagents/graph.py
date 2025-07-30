@@ -1,4 +1,4 @@
-from deepagents.sub_agent import create_task_tool, SubAgent
+from deepagents.sub_agent import _create_task_tool, SubAgent
 from deepagents.model import get_default_model
 from deepagents.tools import write_todos, write_file, read_file, ls, edit_file
 from deepagents.state import DeepAgentState
@@ -53,13 +53,18 @@ def create_deep_agent(
     built_in_tools = [write_todos, write_file, read_file, ls, edit_file]
     if model is None:
         model = get_default_model()
-    task_tool = create_task_tool(
-        list(tools) + built_in_tools, instructions, subagents, model
+    state_schema = state_schema or DeepAgentState
+    task_tool = _create_task_tool(
+        list(tools) + built_in_tools,
+        instructions,
+        subagents,
+        model,
+        state_schema
     )
     all_tools = built_in_tools + list(tools) + [task_tool]
     return create_react_agent(
         model,
         prompt=prompt,
         tools=all_tools,
-        state_schema=state_schema or DeepAgentState,
+        state_schema=state_schema,
     )

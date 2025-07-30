@@ -18,7 +18,7 @@ class SubAgent(TypedDict):
     tools: NotRequired[list[str]]
 
 
-def create_task_tool(tools, instructions, subagents: list[SubAgent], model):
+def _create_task_tool(tools, instructions, subagents: list[SubAgent], model, state_schema):
     agents = {
         "general-purpose": create_react_agent(model, prompt=instructions, tools=tools)
     }
@@ -33,7 +33,7 @@ def create_task_tool(tools, instructions, subagents: list[SubAgent], model):
         else:
             _tools = tools
         agents[_agent["name"]] = create_react_agent(
-            model, prompt=_agent["prompt"], tools=_tools
+            model, prompt=_agent["prompt"], tools=_tools, state_schema=state_schema
         )
 
     other_agents_string = [
