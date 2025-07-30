@@ -1,9 +1,11 @@
-# Deep Agents
+# 🧠🤖Deep Agents
 
 Using an LLM to call tools in a loop is the simplest form of an agent. 
 This architecture, however, can yield agents that are “shallow” and fail to plan and act over longer, more complex tasks. 
 Applications like “Deep Research”, "Manus", and “Claude Code” have gotten around this limitation by implementing a combination of four things:
 a **planning tool**, **sub agents**, access to a **file system**, and a **detailed prompt**.
+
+![](deep_agents.png)
 
 `deepagents` is a Python package that implements these in a general purpose way so that you can easily create a Deep Agent for your application.
 
