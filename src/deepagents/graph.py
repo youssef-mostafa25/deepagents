@@ -1,6 +1,7 @@
 from deepagents.sub_agent import _create_task_tool, SubAgent
 from deepagents.model import get_default_model
 from deepagents.tools import write_todos, write_file, read_file, ls, edit_file
+from deepagents.real_fs_tools import real_write_file, real_read_file, real_ls, real_edit_file
 from deepagents.state import DeepAgentState
 from typing import Sequence, Union, Callable, Any, TypeVar, Type, Optional
 from langchain_core.tools import BaseTool
@@ -30,6 +31,7 @@ def create_deep_agent(
     model: Optional[Union[str, LanguageModelLike]] = None,
     subagents: list[SubAgent] = None,
     state_schema: Optional[StateSchemaType] = None,
+    local_filesystem: bool = False,
 ):
     """Create a deep agent.
 
@@ -48,9 +50,13 @@ def create_deep_agent(
                 - `prompt` (used as the system prompt in the subagent)
                 - (optional) `tools`
         state_schema: The schema of the deep agent. Should subclass from DeepAgentState
+        local_filesystem: If True, use real filesystem tools instead of mock state-based tools
     """
     prompt = instructions + base_prompt
-    built_in_tools = [write_todos, write_file, read_file, ls, edit_file]
+    if local_filesystem:
+        built_in_tools = [write_todos, real_write_file, real_read_file, real_ls, real_edit_file]
+    else:
+        built_in_tools = [write_todos, write_file, read_file, ls, edit_file]
     if model is None:
         model = get_default_model()
     state_schema = state_schema or DeepAgentState
