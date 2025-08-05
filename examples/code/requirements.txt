@@ -1,0 +1,11 @@
+# Core requirements
+deepagents
+langgraph-cli[inmem]
+
+# Optional but recommended for enhanced functionality
+# Uncomment these if you want the full enhanced agent features
+# black>=22.0.0          # Code formatting
+# flake8>=6.0.0          # Code linting  
+# pylint>=2.15.0         # Advanced linting
+# bandit>=1.7.0          # Security scanning
+# pytest>=7.0.0          # Alternative test runner
