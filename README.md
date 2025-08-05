@@ -139,7 +139,7 @@ from deepagents import create_deep_agent
 
 # ... existing agent definitions ...
 
-model = model=init_chat_model(
+model = init_chat_model(
     model="ollama:gpt-oss:20b",  
 )
 agent = create_deep_agent(
@@ -148,6 +148,7 @@ agent = create_deep_agent(
     model=model,
     ...
 )
+```
 
 ## Deep Agent Details
 
