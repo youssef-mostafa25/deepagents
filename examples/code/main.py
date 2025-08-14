@@ -13,6 +13,9 @@ import time
 from typing import Optional, Dict, Any
 from datetime import datetime
 from coding_agent import agent
+from langgraph.checkpoint.memory import InMemorySaver
+
+agent.checkpointer = InMemorySaver()
 
 
 class ProgressTracker:
@@ -164,7 +167,8 @@ async def execute_coding_task(task_description: str, progress: ProgressTracker):
         async for _, chunk in agent.astream(
             {"messages": [{"role": "user", "content": task_description}]},
             stream_mode="updates",
-            subgraphs=True
+            subgraphs=True,
+            config={"thread_id": "main"}
         ):
             chunk = list(chunk.values())[0]
             if "messages" in chunk and chunk["messages"]:
