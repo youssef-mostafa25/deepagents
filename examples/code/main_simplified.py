@@ -141,7 +141,9 @@ async def execute_task(user_input: str, progress: ProgressTracker):
                 
                 # Handle different message types
                 message_content = None
-                message_role = getattr(last_message, 'role', None) or last_message.get('role', 'unknown')
+                message_role = getattr(last_message, 'role', None)
+                if isinstance(message_role, dict):
+                    message_role = last_message.get('role', 'unknown')
                 
                 if hasattr(last_message, 'content'):
                     message_content = last_message.content
