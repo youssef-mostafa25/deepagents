@@ -1,7 +1,22 @@
 from deepagents.sub_agent import _create_task_tool, SubAgent
 from deepagents.model import get_default_model
-from deepagents.tools import write_todos, write_file, read_file, ls, edit_file
-from deepagents.real_fs_tools import write_file as real_write_file, read_file as real_read_file, ls as real_ls, edit_file as real_edit_file
+from deepagents.tools import (
+    write_todos,
+    write_file,
+    read_file,
+    ls,
+    edit_file,
+    glob,
+    grep,
+)
+from deepagents.real_fs_tools import (
+    write_file as real_write_file,
+    read_file as real_read_file,
+    ls as real_ls,
+    edit_file as real_edit_file,
+    glob as real_glob,
+    grep as real_grep,
+)
 from deepagents.state import DeepAgentState
 from typing import Sequence, Union, Callable, Any, TypeVar, Type, Optional
 from langchain_core.tools import BaseTool
@@ -36,7 +51,7 @@ def create_deep_agent(
     """Create a deep agent.
 
     This agent will by default have access to a tool to write todos (write_todos),
-    and then four file editing tools: write_file, ls, read_file, edit_file.
+    and then six file system tools: write_file, ls, read_file, edit_file, glob, grep.
 
     Args:
         tools: The additional tools the agent should have access to.
@@ -54,18 +69,22 @@ def create_deep_agent(
     """
     prompt = instructions + base_prompt
     if local_filesystem:
-        built_in_tools = [write_todos, real_write_file, real_read_file, real_ls, real_edit_file]
+        built_in_tools = [
+            write_todos,
+            real_write_file,
+            real_read_file,
+            real_ls,
+            real_edit_file,
+            real_glob,
+            real_grep,
+        ]
     else:
-        built_in_tools = [write_todos, write_file, read_file, ls, edit_file]
+        built_in_tools = [write_todos, write_file, read_file, ls, edit_file, glob, grep]
     if model is None:
         model = get_default_model()
     state_schema = state_schema or DeepAgentState
     task_tool = _create_task_tool(
-        list(tools) + built_in_tools,
-        instructions,
-        subagents or [],
-        model,
-        state_schema
+        list(tools) + built_in_tools, instructions, subagents or [], model, state_schema
     )
     all_tools = built_in_tools + list(tools) + [task_tool]
     return create_react_agent(

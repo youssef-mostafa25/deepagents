@@ -12,12 +12,12 @@ from deepagents import create_deep_agent, SubAgent
 def execute_bash(command: str, timeout: int = 30, cwd: str = None) -> Dict[str, Any]:
     """
     Execute bash/shell commands safely.
-    
+
     Args:
         command: Shell command to execute
         timeout: Maximum execution time in seconds
         cwd: Working directory for command execution
-        
+
     Returns:
         Dictionary with execution results including stdout, stderr, and success status
     """
@@ -27,36 +27,32 @@ def execute_bash(command: str, timeout: int = 30, cwd: str = None) -> Dict[str, 
             shell_cmd = ["cmd", "/c", command]
         else:
             shell_cmd = ["bash", "-c", command]
-        
+
         # Execute the command
         result = subprocess.run(
-            shell_cmd,
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-            cwd=cwd
+            shell_cmd, capture_output=True, text=True, timeout=timeout, cwd=cwd
         )
-        
+
         return {
             "success": result.returncode == 0,
             "stdout": result.stdout,
             "stderr": result.stderr,
-            "return_code": result.returncode
+            "return_code": result.returncode,
         }
-        
+
     except subprocess.TimeoutExpired:
         return {
             "success": False,
             "stdout": "",
             "stderr": f"Command timed out after {timeout} seconds",
-            "return_code": -1
+            "return_code": -1,
         }
     except Exception as e:
         return {
             "success": False,
             "stdout": "",
             "stderr": f"Error executing command: {str(e)}",
-            "return_code": -1
+            "return_code": -1,
         }
 
 
@@ -66,11 +62,11 @@ def http_request(
     headers: Dict[str, str] = None,
     data: Union[str, Dict] = None,
     params: Dict[str, str] = None,
-    timeout: int = 30
+    timeout: int = 30,
 ) -> Dict[str, Any]:
     """
     Make HTTP requests to APIs and web services.
-    
+
     Args:
         url: Target URL
         method: HTTP method (GET, POST, PUT, DELETE, etc.)
@@ -78,18 +74,14 @@ def http_request(
         data: Request body data (string or dict)
         params: URL query parameters
         timeout: Request timeout in seconds
-        
+
     Returns:
         Dictionary with response data including status, headers, and content
     """
     try:
         # Prepare request parameters
-        kwargs = {
-            "url": url,
-            "method": method.upper(),
-            "timeout": timeout
-        }
-        
+        kwargs = {"url": url, "method": method.upper(), "timeout": timeout}
+
         if headers:
             kwargs["headers"] = headers
         if params:
@@ -99,31 +91,31 @@ def http_request(
                 kwargs["json"] = data
             else:
                 kwargs["data"] = data
-        
+
         # Make the request
         response = requests.request(**kwargs)
-        
+
         # Try to parse JSON response, fallback to text
         try:
             content = response.json()
         except:
             content = response.text
-        
+
         return {
             "success": response.status_code < 400,
             "status_code": response.status_code,
             "headers": dict(response.headers),
             "content": content,
-            "url": response.url
+            "url": response.url,
         }
-        
+
     except requests.exceptions.Timeout:
         return {
             "success": False,
             "status_code": 0,
             "headers": {},
             "content": f"Request timed out after {timeout} seconds",
-            "url": url
+            "url": url,
         }
     except requests.exceptions.RequestException as e:
         return {
@@ -131,7 +123,7 @@ def http_request(
             "status_code": 0,
             "headers": {},
             "content": f"Request error: {str(e)}",
-            "url": url
+            "url": url,
         }
     except Exception as e:
         return {
@@ -139,7 +131,7 @@ def http_request(
             "status_code": 0,
             "headers": {},
             "content": f"Error making request: {str(e)}",
-            "url": url
+            "url": url,
         }
 
 
@@ -167,7 +159,7 @@ code_reviewer_agent = {
     "name": "code-reviewer",
     "description": "Expert code reviewer that analyzes code in any programming language for quality, security, performance, and best practices. Use this when you need detailed code analysis and improvement suggestions.",
     "prompt": code_reviewer_prompt,
-    "tools": ["execute_bash"]
+    "tools": ["execute_bash"],
 }
 
 # Sub-agent for debugging assistance
@@ -194,7 +186,7 @@ debugger_agent = {
     "name": "debugger",
     "description": "Expert debugging assistant that helps identify and fix bugs in any programming language. Use when you encounter errors or unexpected behavior in code.",
     "prompt": debugger_prompt,
-    "tools": ["execute_bash"]
+    "tools": ["execute_bash"],
 }
 
 # Sub-agent for test generation
@@ -220,7 +212,7 @@ test_generator_agent = {
     "name": "test-generator",
     "description": "Expert test engineer that creates comprehensive test suites for any programming language. Use when you need to generate thorough test suites for your code.",
     "prompt": test_generator_prompt,
-    "tools": ["execute_bash"]
+    "tools": ["execute_bash"],
 }
 
 # Main coding agent instructions
@@ -283,5 +275,5 @@ agent = create_deep_agent(
     [execute_bash, http_request],
     coding_instructions,
     subagents=[code_reviewer_agent, debugger_agent, test_generator_agent],
-    local_filesystem=True
+    local_filesystem=True,
 ).with_config({"recursion_limit": 1000})

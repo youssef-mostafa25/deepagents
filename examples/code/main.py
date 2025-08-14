@@ -20,13 +20,13 @@ agent.checkpointer = InMemorySaver()
 
 class ProgressTracker:
     """Tracks and displays progress of software engineering tasks."""
-    
+
     def __init__(self):
         self.start_time = None
         self.current_step = ""
         self.steps_completed = 0
         self.total_steps = 0
-    
+
     def start_task(self, description: str, estimated_steps: int = 1):
         """Start tracking a new task."""
         self.start_time = time.time()
@@ -36,16 +36,18 @@ class ProgressTracker:
         print(f"\n🚀 Starting task: {description}")
         print(f"📋 Estimated steps: {estimated_steps}")
         print("─" * 60)
-    
+
     def update_step(self, step_description: str):
         """Update the current step being worked on."""
         self.current_step = step_description
         self.steps_completed += 1
         elapsed = time.time() - self.start_time if self.start_time else 0
-        
-        print(f"\n⚡ Step {self.steps_completed}/{self.total_steps}: {step_description}")
+
+        print(
+            f"\n⚡ Step {self.steps_completed}/{self.total_steps}: {step_description}"
+        )
         print(f"⏱️  Elapsed time: {elapsed:.1f}s")
-        
+
     def complete_task(self):
         """Mark the task as completed."""
         if self.start_time:
@@ -146,7 +148,7 @@ Just type any of these or describe your own software engineering task!
 async def execute_coding_task(task_description: str, progress: ProgressTracker):
     """
     Execute a coding task with progress tracking and nice output formatting.
-    
+
     Args:
         task_description: Description of the coding task
         progress: Progress tracker instance
@@ -155,50 +157,63 @@ async def execute_coding_task(task_description: str, progress: ProgressTracker):
         # Estimate steps based on task complexity
         estimated_steps = estimate_task_complexity(task_description)
         progress.start_task(task_description, estimated_steps)
-        
+
         print(f"\n🤖 Coding Agent is working on your task...")
-        print(f"📝 Task: {task_description[:80]}{'...' if len(task_description) > 80 else ''}")
-        
+        print(
+            f"📝 Task: {task_description[:80]}{'...' if len(task_description) > 80 else ''}"
+        )
+
         step_count = 0
         message_buffer = []
-        
+
         # Stream the agent's response with progress updates
         # Include subgraphs=True to show outputs from sub agents
         async for _, chunk in agent.astream(
             {"messages": [{"role": "user", "content": task_description}]},
             stream_mode="updates",
             subgraphs=True,
-            config={"thread_id": "main"}
+            config={"thread_id": "main"},
         ):
             chunk = list(chunk.values())[0]
             if "messages" in chunk and chunk["messages"]:
                 last_message = chunk["messages"][-1]
-                
+
                 # Extract clean text content from the message
                 # Handle both direct content access and attribute access
                 message_content = None
-                if hasattr(last_message, 'content'):
+                if hasattr(last_message, "content"):
                     message_content = last_message.content
-                elif isinstance(last_message, dict) and 'content' in last_message:
-                    message_content = last_message['content']
-                
+                elif isinstance(last_message, dict) and "content" in last_message:
+                    message_content = last_message["content"]
+
                 if message_content:
                     text_content = extract_text_content(message_content)
-                    
-                    if text_content.strip():  # Only print if there's actual text content
+
+                    if (
+                        text_content.strip()
+                    ):  # Only print if there's actual text content
                         # Look for progress indicators in the message
-                        if any(keyword in text_content.lower() for keyword in ['analyzing', 'planning', 'implementing', 'testing', 'reviewing']):
+                        if any(
+                            keyword in text_content.lower()
+                            for keyword in [
+                                "analyzing",
+                                "planning",
+                                "implementing",
+                                "testing",
+                                "reviewing",
+                            ]
+                        ):
                             step_count += 1
                             if step_count <= estimated_steps:
                                 step_desc = extract_step_description(text_content)
                                 progress.update_step(step_desc)
-                        
+
                         # Print the clean text content
                         print(f"\n🤖 {text_content}")
                         print("─" * 40)
-                
+
         progress.complete_task()
-        
+
     except Exception as e:
         print(f"\n❌ Error executing task: {e}")
         print("💡 Try rephrasing your request or check your input.")
@@ -207,64 +222,76 @@ async def execute_coding_task(task_description: str, progress: ProgressTracker):
 def estimate_task_complexity(task_description: str) -> int:
     """
     Estimate the number of steps for a task based on its description.
-    
+
     Args:
         task_description: The task description
-        
+
     Returns:
         Estimated number of steps
     """
     # Simple heuristic based on keywords and length
     complexity_keywords = {
-        'create': 3, 'implement': 4, 'build': 5, 'design': 4,
-        'debug': 2, 'fix': 2, 'review': 2, 'test': 2,
-        'optimize': 3, 'refactor': 3, 'api': 4, 'database': 4,
-        'web': 5, 'microservice': 6, 'distributed': 7, 'system': 5
+        "create": 3,
+        "implement": 4,
+        "build": 5,
+        "design": 4,
+        "debug": 2,
+        "fix": 2,
+        "review": 2,
+        "test": 2,
+        "optimize": 3,
+        "refactor": 3,
+        "api": 4,
+        "database": 4,
+        "web": 5,
+        "microservice": 6,
+        "distributed": 7,
+        "system": 5,
     }
-    
+
     task_lower = task_description.lower()
     base_complexity = 1
-    
+
     for keyword, complexity in complexity_keywords.items():
         if keyword in task_lower:
             base_complexity = max(base_complexity, complexity)
-    
+
     # Adjust based on length (longer descriptions usually mean more complex tasks)
     if len(task_description) > 200:
         base_complexity += 2
     elif len(task_description) > 100:
         base_complexity += 1
-        
+
     return min(base_complexity, 10)  # Cap at 10 steps
 
 
 def extract_text_content(message_content) -> str:
     """
     Extract text content from message content blocks, filtering out tool calls and other non-text content.
-    
+
     Args:
         message_content: The message content (could be string, list of content blocks, etc.)
-        
+
     Returns:
         Clean text content for display
     """
     if isinstance(message_content, str):
         return message_content
-    
+
     if isinstance(message_content, list):
         text_parts = []
         for block in message_content:
             if isinstance(block, dict):
                 # Handle text blocks
-                if block.get('type') == 'text' and 'text' in block:
-                    text_parts.append(block['text'])
+                if block.get("type") == "text" and "text" in block:
+                    text_parts.append(block["text"])
                 # Skip tool_use blocks (these are the ones we want to filter out)
-                elif block.get('type') == 'tool_use':
+                elif block.get("type") == "tool_use":
                     continue
-        return '\n'.join(text_parts).strip() if text_parts else ''
-    
+        return "\n".join(text_parts).strip() if text_parts else ""
+
     # Fallback for other types - but avoid printing raw objects
-    if hasattr(message_content, '__dict__'):
+    if hasattr(message_content, "__dict__"):
         return ""  # Don't print complex objects
     return str(message_content)
 
@@ -272,27 +299,27 @@ def extract_text_content(message_content) -> str:
 def extract_step_description(content: str) -> str:
     """
     Extract a meaningful step description from agent message content.
-    
+
     Args:
         content: The message content
-        
+
     Returns:
         A brief step description
     """
     # Look for common patterns that indicate what the agent is doing
     content_lower = content.lower()
-    
-    if 'analyzing' in content_lower:
+
+    if "analyzing" in content_lower:
         return "Analyzing requirements and planning approach"
-    elif 'implementing' in content_lower or 'creating' in content_lower:
+    elif "implementing" in content_lower or "creating" in content_lower:
         return "Implementing the solution"
-    elif 'testing' in content_lower:
+    elif "testing" in content_lower:
         return "Writing and running tests"
-    elif 'reviewing' in content_lower:
+    elif "reviewing" in content_lower:
         return "Reviewing code quality and best practices"
-    elif 'debugging' in content_lower:
+    elif "debugging" in content_lower:
         return "Debugging and fixing issues"
-    elif 'optimizing' in content_lower:
+    elif "optimizing" in content_lower:
         return "Optimizing performance and efficiency"
     else:
         # Fallback: use first few words of the content
@@ -303,14 +330,14 @@ def extract_step_description(content: str) -> str:
 def parse_command(user_input: str) -> tuple[str, str]:
     """
     Parse user input into command and arguments.
-    
+
     Args:
         user_input: Raw user input
-        
+
     Returns:
         Tuple of (command, arguments)
     """
-    parts = user_input.strip().split(' ', 1)
+    parts = user_input.strip().split(" ", 1)
     command = parts[0].lower()
     args = parts[1] if len(parts) > 1 else ""
     return command, args
@@ -318,101 +345,133 @@ def parse_command(user_input: str) -> tuple[str, str]:
 
 async def software_engineering_cli():
     """Main CLI loop for software engineering tasks."""
-    
+
     print_banner()
-    
+
     print("\n🎯 Welcome to your AI Software Engineering Assistant!")
     print("Type 'help' for available commands or just describe what you want to build.")
     print("Type 'examples' to see sample tasks you can try.")
     print("Type 'quit' to exit.\n")
-    
+
     progress = ProgressTracker()
     session_start = datetime.now()
     tasks_completed = 0
-    
+
     while True:
         try:
             # Show session info
             session_time = datetime.now() - session_start
-            print(f"\n┌─ Session: {session_time.seconds // 60}m {session_time.seconds % 60}s | Tasks completed: {tasks_completed} ─┐")
-            
+            print(
+                f"\n┌─ Session: {session_time.seconds // 60}m {session_time.seconds % 60}s | Tasks completed: {tasks_completed} ─┐"
+            )
+
             user_input = input("🛠️  What would you like to build or work on? ").strip()
-            
+
             if not user_input:
                 continue
-                
+
             command, args = parse_command(user_input)
-            
+
             # Handle utility commands
-            if command in ['quit', 'exit', 'q']:
+            if command in ["quit", "exit", "q"]:
                 print(f"\n👋 Thanks for using the Software Engineering CLI!")
-                print(f"📊 Session summary: {tasks_completed} tasks completed in {session_time}")
+                print(
+                    f"📊 Session summary: {tasks_completed} tasks completed in {session_time}"
+                )
                 break
-                
-            elif command == 'help':
+
+            elif command == "help":
                 print_help()
                 continue
-                
-            elif command == 'examples':
+
+            elif command == "examples":
                 print_examples()
                 continue
-                
-            elif command == 'clear':
+
+            elif command == "clear":
                 print("\033[2J\033[H", end="")  # Clear screen
                 print_banner()
                 continue
-            
+
             # Handle coding commands
-            elif command in ['code', 'create', 'implement', 'build']:
+            elif command in ["code", "create", "implement", "build"]:
                 task = f"Create/implement: {args}" if args else user_input
                 await execute_coding_task(task, progress)
                 tasks_completed += 1
-                
-            elif command == 'debug':
-                task = f"Debug this code and fix any issues: {args}" if args else user_input
+
+            elif command == "debug":
+                task = (
+                    f"Debug this code and fix any issues: {args}"
+                    if args
+                    else user_input
+                )
                 await execute_coding_task(task, progress)
                 tasks_completed += 1
-                
-            elif command == 'review':
-                task = f"Review this code for quality, best practices, and improvements: {args}" if args else user_input
+
+            elif command == "review":
+                task = (
+                    f"Review this code for quality, best practices, and improvements: {args}"
+                    if args
+                    else user_input
+                )
                 await execute_coding_task(task, progress)
                 tasks_completed += 1
-                
-            elif command == 'test':
-                task = f"Generate comprehensive tests for this code: {args}" if args else user_input
+
+            elif command == "test":
+                task = (
+                    f"Generate comprehensive tests for this code: {args}"
+                    if args
+                    else user_input
+                )
                 await execute_coding_task(task, progress)
                 tasks_completed += 1
-                
-            elif command == 'optimize':
-                task = f"Optimize this code for better performance: {args}" if args else user_input
+
+            elif command == "optimize":
+                task = (
+                    f"Optimize this code for better performance: {args}"
+                    if args
+                    else user_input
+                )
                 await execute_coding_task(task, progress)
                 tasks_completed += 1
-                
-            elif command == 'explain':
-                task = f"Explain how this code works and what it does: {args}" if args else user_input
+
+            elif command == "explain":
+                task = (
+                    f"Explain how this code works and what it does: {args}"
+                    if args
+                    else user_input
+                )
                 await execute_coding_task(task, progress)
                 tasks_completed += 1
-                
-            elif command == 'refactor':
-                task = f"Refactor this code to improve its structure and maintainability: {args}" if args else user_input
+
+            elif command == "refactor":
+                task = (
+                    f"Refactor this code to improve its structure and maintainability: {args}"
+                    if args
+                    else user_input
+                )
                 await execute_coding_task(task, progress)
                 tasks_completed += 1
-                
-            elif command == 'api':
+
+            elif command == "api":
                 task = f"Design and implement an API: {args}" if args else user_input
                 await execute_coding_task(task, progress)
                 tasks_completed += 1
-                
-            elif command == 'database':
-                task = f"Design database schema and implementation: {args}" if args else user_input
+
+            elif command == "database":
+                task = (
+                    f"Design database schema and implementation: {args}"
+                    if args
+                    else user_input
+                )
                 await execute_coding_task(task, progress)
                 tasks_completed += 1
-                
+
             else:
                 # Treat as a general coding task
                 await execute_coding_task(user_input, progress)
                 tasks_completed += 1
-                
+
         except KeyboardInterrupt:
             print(f"\n\n👋 Thanks for using the Software Engineering CLI!")
             print(f"📊 Session summary: {tasks_completed} tasks completed")
