@@ -1,7 +1,7 @@
 from deepagents.sub_agent import _create_task_tool, SubAgent
 from deepagents.model import get_default_model
 from deepagents.tools import write_todos, write_file, read_file, ls, edit_file
-from deepagents.real_fs_tools import real_write_file, real_read_file, real_ls, real_edit_file
+from deepagents.real_fs_tools import write_file as real_write_file, read_file as real_read_file, ls as real_ls, edit_file as real_edit_file
 from deepagents.state import DeepAgentState
 from typing import Sequence, Union, Callable, Any, TypeVar, Type, Optional
 from langchain_core.tools import BaseTool

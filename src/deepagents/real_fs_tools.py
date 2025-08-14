@@ -9,7 +9,7 @@ from deepagents.prompts import (
 )
 
 
-def real_ls(path: str = ".") -> list[str]:
+def ls(path: str = ".") -> list[str]:
     """List all files in the specified directory."""
     try:
         path_obj = pathlib.Path(path)
@@ -28,7 +28,7 @@ def real_ls(path: str = ".") -> list[str]:
 
 
 @tool(description=TOOL_DESCRIPTION)
-def real_read_file(
+def read_file(
     file_path: str,
     offset: int = 0,
     limit: int = 2000,
@@ -88,7 +88,7 @@ def real_read_file(
 
 
 @tool
-def real_write_file(
+def write_file(
     file_path: str,
     content: str,
 ) -> str:
@@ -110,7 +110,7 @@ def real_write_file(
 
 
 @tool(description=EDIT_DESCRIPTION)
-def real_edit_file(
+def edit_file(
     file_path: str,
     old_string: str,
     new_string: str,
