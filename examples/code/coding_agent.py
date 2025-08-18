@@ -12,6 +12,7 @@ from deepagents import create_deep_agent, SubAgent
 # Initialize Tavily client once and reuse it
 tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
 
+TARGET_DIRECTORY = "/Users/Desktop/test/langgraph"
 
 def execute_bash(command: str, timeout: int = 30, cwd: str = None) -> Dict[str, Any]:
     """

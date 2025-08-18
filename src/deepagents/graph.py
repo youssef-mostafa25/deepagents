@@ -37,7 +37,10 @@ These tools are also EXTREMELY helpful for planning tasks, and for breaking down
 It is critical that you mark todos as completed as soon as you are done with a task. Do not batch up multiple tasks before marking them as completed.
 ## `task`
 
-- When doing web search, prefer to use the `task` tool in order to reduce context usage."""
+- When doing web search, prefer to use the `task` tool in order to reduce context usage.
+- Make sure to delete any files that you create during your work. 
+
+"""
 
 
 def create_deep_agent(
