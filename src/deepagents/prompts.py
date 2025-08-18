@@ -320,3 +320,39 @@ Examples:
 - With context: pattern="import", context_lines=2
 
 Returns: File paths with line numbers and matching lines, plus context if requested"""
+
+PATCH_DESCRIPTION = """Apply unified diff patches to files using git apply.
+
+This tool applies patches in unified diff format to files, making it ideal for complex code modifications that require precise line-by-line changes. It's especially useful when you need to make multiple related changes across different parts of a file or when you have a complete diff output.
+
+Usage:
+- file_path: Path to the file to patch
+- patch_content: The patch content in unified diff format (like output from 'diff -u' or 'git diff')
+- create_backup: Whether to create a backup of the original file (defaults to True)
+
+When to use this tool:
+- Complex multi-line changes that span different parts of a file
+- Adding/removing multiple lines in specific locations
+- Modifying function signatures, class definitions, or nested structures
+- When you have a complete diff output from version control
+- Context-aware modifications that need to preserve surrounding code
+- Adding imports at the top while modifying code in the middle
+- When you want git's robust patch validation and automatic rollback
+
+When NOT to use this tool:
+- Simple single-line text replacements (use Edit tool instead)
+- Adding content to the end of files
+- Trivial changes that don't require precise line positioning
+
+Patch Format Example:
+```
+--- file.py
++++ file.py
+@@ -1,3 +1,4 @@
+ def hello():
++    # Add comment
+     print("Hello")
+     return True
+```
+
+The tool automatically creates backups and will rollback changes if the patch fails to apply correctly. Requires git to be available on the system."""
