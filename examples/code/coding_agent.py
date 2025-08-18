@@ -3,10 +3,14 @@ import subprocess
 import tempfile
 import platform
 import requests
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Optional, Union, Literal
 from pathlib import Path
 
+from tavily import TavilyClient
 from deepagents import create_deep_agent, SubAgent
+
+# Initialize Tavily client once and reuse it
+tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
 
 
 def execute_bash(command: str, timeout: int = 30, cwd: str = None) -> Dict[str, Any]:
@@ -135,6 +139,28 @@ def http_request(
         }
 
 
+def web_search(
+    query: str,
+    max_results: int = 5,
+    topic: Literal["general", "news", "finance"] = "general",
+    include_raw_content: bool = False,
+):
+    """Search the web using Tavily for programming-related information."""
+    try:
+        search_docs = tavily_client.search(
+            query,
+            max_results=max_results,
+            include_raw_content=include_raw_content,
+            topic=topic,
+        )
+        return search_docs
+    except Exception as e:
+        return {
+            "error": f"Web search error: {str(e)}",
+            "query": query
+        }
+
+
 # Sub-agent for code review and analysis
 code_reviewer_prompt = """You are an expert code reviewer for all programming languages. Your job is to analyze code for:
 
@@ -250,6 +276,7 @@ coding_instructions = """You are an expert software developer and coding assista
 ## Tools Available
 - **execute_bash**: Run shell commands for compilation, testing, package management, etc.
 - **http_request**: Make API calls, download resources, interact with web services
+- **web_search**: Search the web for programming documentation, tutorials, and solutions
 
 ## File Management
 - Save code to appropriate files with correct extensions
@@ -266,13 +293,21 @@ You can handle:
 - Static analysis and linting
 - Environment setup and configuration
 
+## Web Search Usage
+Use web_search to find:
+- Programming language documentation and tutorials
+- Framework-specific examples and best practices
+- Error solutions and debugging help
+- Latest library versions and installation guides
+- Code examples and implementation patterns
+
 Always test your code using appropriate tools before presenting it to the user. If there are errors, use the debugger sub-agent to help identify and fix issues.
 
 Remember: Quality code is more important than quick code. Take time to write clean, tested, and well-documented solutions."""
 
 # Create the coding agent
 agent = create_deep_agent(
-    [execute_bash, http_request],
+    [execute_bash, http_request, web_search],
     coding_instructions,
     subagents=[code_reviewer_agent, debugger_agent, test_generator_agent],
     local_filesystem=True,

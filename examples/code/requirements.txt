@@ -1,3 +1,11 @@
 # Core requirements
 deepagents
 langgraph-cli[inmem]
+tavily-python
+
+# Optional: Install ripgrep for faster grep operations
+# brew install ripgrep (macOS) or apt install ripgrep (Ubuntu)
+
+# Web search functionality requires Tavily API key
+# Get your free API key at: https://tavily.com/
+# Set environment variable: export TAVILY_API_KEY="your_api_key_here"
