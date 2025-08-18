@@ -255,15 +255,60 @@ Since the user is greeting, use the greeting-responder agent to respond with a f
 </commentary>
 assistant: "I'm going to use the Task tool to launch with the greeting-responder agent"
 </example>"""
-EDIT_DESCRIPTION = """Performs exact string replacements in files. 
+EDIT_DESCRIPTION = """This is a tool for editing files. For moving or renaming files, you should generally use the Bash tool with the 'mv' command instead. For larger edits, use the Write tool to overwrite files. For Jupyter notebooks (.ipynb files), use the NotebookEditCellTool instead.
 
-Usage:
-- You must use your `Read` tool at least once in the conversation before editing. This tool will error if you attempt an edit without reading the file. 
-- When editing text from Read tool output, ensure you preserve the exact indentation (tabs/spaces) as it appears AFTER the line number prefix. The line number prefix format is: spaces + line number + tab. Everything after that tab is the actual file content to match. Never include any part of the line number prefix in the old_string or new_string.
-- ALWAYS prefer editing existing files. NEVER write new files unless explicitly required.
-- Only use emojis if the user explicitly requests it. Avoid adding emojis to files unless asked.
-- The edit will FAIL if `old_string` is not unique in the file. Either provide a larger string with more surrounding context to make it unique or use `replace_all` to change every instance of `old_string`. 
-- Use `replace_all` for replacing and renaming strings across the file. This parameter is useful if you want to rename a variable for instance."""
+Before using this tool:
+
+Use the Read tool to understand the file's contents and context
+
+Verify the directory path is correct (only applicable when creating new files):
+
+Use the LS tool to verify the parent directory exists and is the correct location
+
+To make a file edit, provide the following:
+
+file_path: The absolute path to the file to modify (must be absolute, not relative)
+old_string: The text to replace (must be unique within the file, and must match the file contents exactly, including all whitespace and indentation)
+new_string: The edited text to replace the old_string
+
+The tool will replace ONE occurrence of old_string with new_string in the specified file.
+
+CRITICAL REQUIREMENTS FOR USING THIS TOOL:
+
+UNIQUENESS: The old_string MUST uniquely identify the specific instance you want to change. This means:
+
+Include AT LEAST 3-5 lines of context BEFORE the change point
+Include AT LEAST 3-5 lines of context AFTER the change point
+Include all whitespace, indentation, and surrounding code exactly as it appears in the file
+
+SINGLE INSTANCE: This tool can only change ONE instance at a time. If you need to change multiple instances:
+
+Make separate calls to this tool for each instance
+Each call must uniquely identify its specific instance using extensive context
+
+VERIFICATION: Before using this tool:
+
+Check how many instances of the target text exist in the file
+If multiple instances exist, gather enough context to uniquely identify each one
+Plan separate tool calls for each instance
+
+WARNING: If you do not follow these requirements:
+
+The tool will fail if old_string matches multiple locations
+The tool will fail if old_string doesn't match exactly (including whitespace)
+You may change the wrong instance if you don't include enough context
+
+When making edits:
+
+Ensure the edit results in idiomatic, correct code
+Do not leave the code in a broken state
+Always use absolute file paths (starting with /)
+
+If you want to create a new file, use:
+
+A new file path, including dir name if needed
+An empty old_string
+The new file's contents as new_string"""
 TOOL_DESCRIPTION = """Reads a file from the local filesystem. You can access any file directly by using this tool.
 Assume this tool is able to read all files on the machine. If the User provides a path to a file assume that path is valid. It is okay to read a file that does not exist; an error will be returned.
 
@@ -321,38 +366,20 @@ Examples:
 
 Returns: File paths with line numbers and matching lines, plus context if requested"""
 
-PATCH_DESCRIPTION = """Apply unified diff patches to files using git apply.
 
-This tool applies patches in unified diff format to files, making it ideal for complex code modifications that require precise line-by-line changes. It's especially useful when you need to make multiple related changes across different parts of a file or when you have a complete diff output.
+
+WRITE_DESCRIPTION = """Write a file to the local filesystem. Overwrites the existing file if there is one.
+
+Before using this tool:
+
+Use the Read tool to understand the file's contents and context
+
+Directory Verification (only applicable when creating new files):
+
+Use the LS tool to verify the parent directory exists and is the correct location
 
 Usage:
-- file_path: Path to the file to patch
-- patch_content: The patch content in unified diff format (like output from 'diff -u' or 'git diff')
-- create_backup: Whether to create a backup of the original file (defaults to True)
+- file_path: Path to the file to write (absolute or relative path)
+- content: The content to write to the file
 
-When to use this tool:
-- Complex multi-line changes that span different parts of a file
-- Adding/removing multiple lines in specific locations
-- Modifying function signatures, class definitions, or nested structures
-- When you have a complete diff output from version control
-- Context-aware modifications that need to preserve surrounding code
-- Adding imports at the top while modifying code in the middle
-- When you want git's robust patch validation and automatic rollback
-
-When NOT to use this tool:
-- Simple single-line text replacements (use Edit tool instead)
-- Adding content to the end of files
-- Trivial changes that don't require precise line positioning
-
-Patch Format Example:
-```
---- file.py
-+++ file.py
-@@ -1,3 +1,4 @@
- def hello():
-+    # Add comment
-     print("Hello")
-     return True
-```
-
-The tool automatically creates backups and will rollback changes if the patch fails to apply correctly. Requires git to be available on the system."""
+The tool will automatically create parent directories if they don't exist."""

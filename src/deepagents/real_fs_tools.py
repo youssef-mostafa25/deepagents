@@ -1,9 +1,6 @@
 import os
 import pathlib
 import re
-import subprocess
-import shutil
-import tempfile
 from langchain_core.tools import tool
 from typing import Annotated, Optional, Union
 
@@ -12,7 +9,7 @@ from deepagents.prompts import (
     TOOL_DESCRIPTION,
     GLOB_DESCRIPTION,
     GREP_DESCRIPTION,
-    PATCH_DESCRIPTION,
+    WRITE_DESCRIPTION,
 )
 
 
@@ -96,7 +93,7 @@ def read_file(
         return f"Error reading file: {str(e)}"
 
 
-@tool
+@tool(description=WRITE_DESCRIPTION)
 def write_file(
     file_path: str,
     content: str,
@@ -408,97 +405,4 @@ def grep(
         return f"Error in grep search: {str(e)}"
 
 
-@tool(description=PATCH_DESCRIPTION)
-def apply_patch(
-    file_path: str,
-    patch_content: str,
-    create_backup: bool = True,
-) -> str:
-    """Apply a patch to a file.
-    
-    This function applies patches using git apply for reliable patch application.
-    
-    Args:
-        file_path: Path to the file to patch
-        patch_content: The patch content in unified diff format
-        create_backup: Whether to create a backup of the original file before applying the patch
-    
-    Returns:
-        Success or error message
-    """
-    try:
-        path_obj = pathlib.Path(file_path)
-        
-        # Check if file exists
-        if not path_obj.exists():
-            return f"Error: File '{file_path}' not found"
-        
-        if not path_obj.is_file():
-            return f"Error: '{file_path}' is not a file"
-        
-        # Create backup if requested
-        backup_path = None
-        if create_backup:
-            backup_path = path_obj.with_suffix(path_obj.suffix + '.backup')
-            shutil.copy2(path_obj, backup_path)
-        
-        # Use git apply for reliable patch application
-        try:
-            # Create a temporary patch file
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.patch', delete=False) as temp_patch:
-                temp_patch.write(patch_content)
-                temp_patch_path = temp_patch.name
-            
-            # Apply the patch using git
-            result = subprocess.run(
-                ['git', 'apply', '--check', temp_patch_path],
-                capture_output=True,
-                text=True,
-                cwd=path_obj.parent
-            )
-            
-            if result.returncode != 0:
-                # Patch check failed, clean up and return error
-                os.unlink(temp_patch_path)
-                if backup_path and backup_path.exists():
-                    backup_path.unlink()
-                return f"Error: Patch check failed: {result.stderr}"
-            
-            # Apply the patch
-            result = subprocess.run(
-                ['git', 'apply', temp_patch_path],
-                capture_output=True,
-                text=True,
-                cwd=path_obj.parent
-            )
-            
-            # Clean up temporary patch file
-            os.unlink(temp_patch_path)
-            
-            if result.returncode != 0:
-                # Patch application failed, restore backup
-                if backup_path and backup_path.exists():
-                    shutil.copy2(backup_path, path_obj)
-                    backup_path.unlink()
-                return f"Error applying patch: {result.stderr}"
-            
-            # Remove backup if patch was successful
-            if backup_path and backup_path.exists():
-                backup_path.unlink()
-            
-            return f"Successfully applied patch to '{file_path}' using git apply"
-            
-        except FileNotFoundError:
-            # Git not available
-            if backup_path and backup_path.exists():
-                backup_path.unlink()
-            return "Error: git not available on this system"
-        except Exception as e:
-            # Clean up on error
-            if backup_path and backup_path.exists():
-                shutil.copy2(backup_path, path_obj)
-                backup_path.unlink()
-            return f"Error using git apply: {str(e)}"
-        
-    except Exception as e:
-        return f"Error applying patch: {str(e)}"
+
