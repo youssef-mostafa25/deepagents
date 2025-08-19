@@ -46,11 +46,6 @@ def execute_bash(command: str, timeout: int = 30, cwd: str = None) -> Dict[str, 
                 "safety_validation": safety_validation.model_dump()
             }
         
-        # Command approval is now handled by the post model hook
-        # No need for duplicate approval here
-        
-        # If command is safe and approved, proceed with execution
-        # Determine the appropriate shell based on platform
         if platform.system() == "Windows":
             shell_cmd = ["cmd", "/c", command]
         else:
