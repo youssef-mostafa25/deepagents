@@ -8,15 +8,19 @@ from pathlib import Path
 
 from tavily import TavilyClient
 from deepagents import create_deep_agent, SubAgent
+from utils import validate_command_safety
 
-# Initialize Tavily client once and reuse it
-tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
+# Initialize Tavily client
+try:
+    tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
+except KeyError:
+    tavily_client = None
 
 TARGET_DIRECTORY = "/Users/Desktop/test/langgraph"
 
 def execute_bash(command: str, timeout: int = 30, cwd: str = None) -> Dict[str, Any]:
     """
-    Execute bash/shell commands safely.
+    Execute bash/shell commands safely with prompt injection detection.
 
     Args:
         command: Shell command to execute
@@ -27,6 +31,20 @@ def execute_bash(command: str, timeout: int = 30, cwd: str = None) -> Dict[str, 
         Dictionary with execution results including stdout, stderr, and success status
     """
     try:
+        # First, validate command safety (focusing on prompt injection)
+        safety_validation = validate_command_safety(command)
+        
+        # If command is not safe, return error without executing
+        if not safety_validation.is_safe:
+            return {
+                "success": False,
+                "stdout": "",
+                "stderr": f"Command blocked - safety validation failed:\nThreat Type: {safety_validation.threat_type}\nReasoning: {safety_validation.reasoning}\nDetected Patterns: {', '.join(safety_validation.detected_patterns)}",
+                "return_code": -1,
+                "safety_validation": safety_validation.model_dump()
+            }
+        
+        # If command is safe, proceed with execution
         # Determine the appropriate shell based on platform
         if platform.system() == "Windows":
             shell_cmd = ["cmd", "/c", command]
@@ -43,6 +61,7 @@ def execute_bash(command: str, timeout: int = 30, cwd: str = None) -> Dict[str, 
             "stdout": result.stdout,
             "stderr": result.stderr,
             "return_code": result.returncode,
+            "safety_validation": safety_validation.model_dump()
         }
 
     except subprocess.TimeoutExpired:
@@ -147,6 +166,12 @@ def web_search(
     include_raw_content: bool = False,
 ):
     """Search the web using Tavily for programming-related information."""
+    if tavily_client is None:
+        return {
+            "error": "Tavily API key not configured. Please set TAVILY_API_KEY environment variable.",
+            "query": query
+        }
+    
     try:
         search_docs = tavily_client.search(
             query,
@@ -275,7 +300,7 @@ coding_instructions = """You are an expert software developer and coding assista
 - Create comprehensive tests for your code
 
 ## Tools Available
-- **execute_bash**: Run shell commands for compilation, testing, package management, etc.
+- **execute_bash**: Run shell commands for compilation, testing, package management, etc. (All commands are validated for safety with focus on prompt injection detection using Claude before execution)
 - **http_request**: Make API calls, download resources, interact with web services
 - **web_search**: Search the web for programming documentation, tutorials, and solutions
 
@@ -301,6 +326,9 @@ Use web_search to find:
 - Error solutions and debugging help
 - Latest library versions and installation guides
 - Code examples and implementation patterns
+
+## Safety Validation
+All shell commands are automatically validated for safety before execution using Claude, with a focus on detecting prompt injection attempts and malicious commands. If a command is deemed unsafe, it will be blocked with a detailed explanation of the threat type and detected patterns. This ensures that only safe commands are executed on your local filesystem.
 
 Always test your code using appropriate tools before presenting it to the user. If there are errors, use the debugger sub-agent to help identify and fix issues.
 

@@ -38,7 +38,6 @@ It is critical that you mark todos as completed as soon as you are done with a t
 ## `task`
 
 - When doing web search, prefer to use the `task` tool in order to reduce context usage.
-- Make sure to delete any files that you create during your work. 
 
 """
 
