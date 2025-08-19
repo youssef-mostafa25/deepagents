@@ -21,6 +21,7 @@ from deepagents.state import DeepAgentState
 from typing import Sequence, Union, Callable, Any, TypeVar, Type, Optional
 from langchain_core.tools import BaseTool
 from langchain_core.language_models import LanguageModelLike
+from langgraph.types import Checkpointer
 
 from langgraph.prebuilt import create_react_agent
 
@@ -49,6 +50,8 @@ def create_deep_agent(
     subagents: list[SubAgent] = None,
     state_schema: Optional[StateSchemaType] = None,
     local_filesystem: bool = False,
+    config_schema: Optional[Type[Any]] = None,
+    checkpointer: Optional[Checkpointer] = None,
 ):
     """Create a deep agent.
 
@@ -68,6 +71,8 @@ def create_deep_agent(
                 - (optional) `tools`
         state_schema: The schema of the deep agent. Should subclass from DeepAgentState
         local_filesystem: If True, use real filesystem tools instead of mock state-based tools
+        config_schema: The schema of the deep agent.
+        checkpointer: Optional checkpointer for persisting agent state between runs.
     """
     prompt = instructions + base_prompt
     if local_filesystem:
@@ -94,4 +99,6 @@ def create_deep_agent(
         prompt=prompt,
         tools=all_tools,
         state_schema=state_schema,
+        config_schema=config_schema,
+        checkpointer=checkpointer,
     )
