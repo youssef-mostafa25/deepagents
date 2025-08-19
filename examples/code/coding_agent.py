@@ -18,13 +18,7 @@ from coding_instructions import get_coding_instructions
 # Define the target directory for the coding agent
 TARGET_DIRECTORY = "/Users/palash/desktop/test"
 
-# Initialize Tavily client
-try:
-    tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
-except KeyError:
-    tavily_client = None
-
-
+tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
 
 def execute_bash(command: str, timeout: int = 30, cwd: str = None) -> Dict[str, Any]:
     """
