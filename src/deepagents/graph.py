@@ -52,6 +52,7 @@ def create_deep_agent(
     local_filesystem: bool = False,
     config_schema: Optional[Type[Any]] = None,
     checkpointer: Optional[Checkpointer] = None,
+    post_model_hook: Optional[Callable] = None,
 ):
     """Create a deep agent.
 
@@ -71,9 +72,9 @@ def create_deep_agent(
                 - (optional) `tools`
         state_schema: The schema of the deep agent. Should subclass from DeepAgentState
         local_filesystem: If True, use real filesystem tools instead of mock state-based tools
-        local_filesystem: If True, use real filesystem tools instead of mock state-based tools
         config_schema: The schema of the deep agent.
         checkpointer: Optional checkpointer for persisting agent state between runs.
+        post_model_hook: Optional post model hook function for intercepting tool calls.
     """
     prompt = instructions + base_prompt
     if local_filesystem:
@@ -88,6 +89,7 @@ def create_deep_agent(
         ]
     else:
         built_in_tools = [write_todos, write_file, read_file, ls, edit_file, glob, grep]
+    
     if model is None:
         model = get_default_model()
     state_schema = state_schema or DeepAgentState
@@ -95,6 +97,7 @@ def create_deep_agent(
         list(tools) + built_in_tools, instructions, subagents or [], model, state_schema
     )
     all_tools = built_in_tools + list(tools) + [task_tool]
+    
     return create_react_agent(
         model,
         prompt=prompt,
@@ -102,4 +105,5 @@ def create_deep_agent(
         state_schema=state_schema,
         config_schema=config_schema,
         checkpointer=checkpointer,
+        post_model_hook=post_model_hook,
     )

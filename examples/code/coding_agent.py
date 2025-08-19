@@ -8,8 +8,11 @@ from pathlib import Path
 
 from tavily import TavilyClient
 from deepagents import create_deep_agent, SubAgent
+from post_model_hook import create_coding_agent_post_model_hook
 from utils import validate_command_safety
 from subagents import code_reviewer_agent, debugger_agent, test_generator_agent
+from langgraph.types import Command
+from state import CodingAgentState
 
 # Initialize Tavily client
 try:
@@ -21,7 +24,7 @@ TARGET_DIRECTORY = "/Users/palash/desktop/test"
 
 def execute_bash(command: str, timeout: int = 30, cwd: str = None) -> Dict[str, Any]:
     """
-    Execute bash/shell commands safely with prompt injection detection.
+    Execute bash/shell commands safely with prompt injection detection and human approval.
 
     Args:
         command: Shell command to execute
@@ -45,7 +48,29 @@ def execute_bash(command: str, timeout: int = 30, cwd: str = None) -> Dict[str, 
                 "safety_validation": safety_validation.model_dump()
             }
         
-        # If command is safe, proceed with execution
+        # Add interrupt for human approval before executing the command
+        is_approved = interrupt({
+            "question": f"Do you want to execute this bash command?\n\nCommand: {command}\nDirectory: {cwd or 'current directory'}\nTimeout: {timeout}s\n\nRespond with True to approve or False to reject.",
+            "command": command,
+            "cwd": cwd or "current directory",
+            "timeout": timeout,
+            "safety_validation": safety_validation.model_dump()
+        })
+
+        print(is_approved)
+        
+        # Check user decision
+        if not is_approved:
+            # User rejected the command
+            return {
+                "success": False,
+                "stdout": "",
+                "stderr": "Command execution cancelled by user",
+                "return_code": -2,
+                "user_approved": False
+            }
+        
+        # If command is safe and approved, proceed with execution
         # Determine the appropriate shell based on platform
         if platform.system() == "Windows":
             shell_cmd = ["cmd", "/c", command]
@@ -62,7 +87,8 @@ def execute_bash(command: str, timeout: int = 30, cwd: str = None) -> Dict[str, 
             "stdout": result.stdout,
             "stderr": result.stderr,
             "return_code": result.returncode,
-            "safety_validation": safety_validation.model_dump()
+            "safety_validation": safety_validation.model_dump(),
+            "user_approved": True
         }
 
     except subprocess.TimeoutExpired:
@@ -260,10 +286,15 @@ Always test your code using appropriate tools before presenting it to the user. 
 Remember: Quality code is more important than quick code. Take time to write clean, tested, and well-documented solutions.
 """
 
-# Create the coding agent
+# Create the post model hook
+post_model_hook = create_coding_agent_post_model_hook()
+
+# Create the coding agent with interrupt handling
 agent = create_deep_agent(
     [execute_bash, http_request, web_search],
     coding_instructions,
     subagents=[code_reviewer_agent, debugger_agent, test_generator_agent],
     local_filesystem=True,
+    state_schema=CodingAgentState,
+    post_model_hook=post_model_hook,  # Pass the post model hook directly
 ).with_config({"recursion_limit": 1000})

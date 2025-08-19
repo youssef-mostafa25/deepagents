@@ -13,7 +13,7 @@ from deepagents.prompts import (
 )
 
 
-def ls(path: str = ".") -> list[str]:
+def ls(path: str = ".", state=None) -> list[str]:
     """List all files in the specified directory."""
     try:
         path_obj = pathlib.Path(path)
@@ -36,6 +36,7 @@ def read_file(
     file_path: str,
     offset: int = 0,
     limit: int = 2000,
+    state=None,
 ) -> str:
     """Read file from disk."""
     try:
@@ -97,6 +98,7 @@ def read_file(
 def write_file(
     file_path: str,
     content: str,
+    state=None,
 ) -> str:
     """Write content to a file on disk."""
     try:
@@ -121,6 +123,7 @@ def edit_file(
     old_string: str,
     new_string: str,
     replace_all: bool = False,
+    state=None,
 ) -> str:
     """Edit a file on disk by replacing old_string with new_string."""
     try:
@@ -180,6 +183,7 @@ def glob(
     max_results: int = 100,
     include_dirs: bool = False,
     recursive: bool = True,
+    state=None,
 ) -> str:
     """Find files and directories using glob patterns."""
     try:
@@ -246,6 +250,7 @@ def grep(
     context_lines: int = 0,
     regex: bool = False,
     recursive: bool = True,
+    state=None,
 ) -> str:
     """Search for text patterns within files."""
     try:
