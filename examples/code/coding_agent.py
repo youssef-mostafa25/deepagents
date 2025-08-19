@@ -17,7 +17,7 @@ try:
 except KeyError:
     tavily_client = None
 
-TARGET_DIRECTORY = "/Users/Desktop/test/langgraph"
+TARGET_DIRECTORY = "/Users/palash/desktop/test"
 
 def execute_bash(command: str, timeout: int = 30, cwd: str = None) -> Dict[str, Any]:
     """
@@ -187,7 +187,14 @@ def web_search(
         }
 
 # Main coding agent instructions
-coding_instructions = """You are an expert software developer and coding assistant. Your job is to help users with all aspects of programming across multiple languages including:
+coding_instructions = f"""You are an expert software developer and coding assistant. Your job is to help users with all aspects of programming across multiple languages including:
+
+The directory you should operate in is: {TARGET_DIRECTORY}
+
+CRITICAL command-generation rules:
+- Always operate within the target directory. Prefer commands like: cd {TARGET_DIRECTORY} && <your command>
+- Or use absolute paths rooted under {TARGET_DIRECTORY}.
+- Never read or write outside {TARGET_DIRECTORY} unless explicitly instructed.
 
 ## Core Capabilities
 - **Code Development**: Write clean, efficient, and well-documented code in any language
@@ -250,7 +257,8 @@ Use web_search to find:
 All shell commands are automatically validated for safety before execution using Claude, with a focus on detecting prompt injection attempts and malicious commands. If a command is deemed unsafe, it will be blocked with a detailed explanation of the threat type and detected patterns. This ensures that only safe commands are executed on your local filesystem.
 Always test your code using appropriate tools before presenting it to the user. If there are errors, use the debugger sub-agent to help identify and fix issues.
 
-Remember: Quality code is more important than quick code. Take time to write clean, tested, and well-documented solutions."""
+Remember: Quality code is more important than quick code. Take time to write clean, tested, and well-documented solutions.
+"""
 
 # Create the coding agent
 agent = create_deep_agent(
