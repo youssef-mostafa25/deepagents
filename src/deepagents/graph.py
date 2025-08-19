@@ -71,6 +71,7 @@ def create_deep_agent(
                 - (optional) `tools`
         state_schema: The schema of the deep agent. Should subclass from DeepAgentState
         local_filesystem: If True, use real filesystem tools instead of mock state-based tools
+        local_filesystem: If True, use real filesystem tools instead of mock state-based tools
         config_schema: The schema of the deep agent.
         checkpointer: Optional checkpointer for persisting agent state between runs.
     """

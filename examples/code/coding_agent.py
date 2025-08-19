@@ -159,7 +159,6 @@ def http_request(
             "url": url,
         }
 
-
 def web_search(
     query: str,
     max_results: int = 5,
@@ -186,7 +185,6 @@ def web_search(
             "error": f"Web search error: {str(e)}",
             "query": query
         }
-
 
 # Main coding agent instructions
 coding_instructions = """You are an expert software developer and coding assistant. Your job is to help users with all aspects of programming across multiple languages including:
@@ -250,7 +248,6 @@ Use web_search to find:
 
 ## Safety Validation
 All shell commands are automatically validated for safety before execution using Claude, with a focus on detecting prompt injection attempts and malicious commands. If a command is deemed unsafe, it will be blocked with a detailed explanation of the threat type and detected patterns. This ensures that only safe commands are executed on your local filesystem.
-
 Always test your code using appropriate tools before presenting it to the user. If there are errors, use the debugger sub-agent to help identify and fix issues.
 
 Remember: Quality code is more important than quick code. Take time to write clean, tested, and well-documented solutions."""

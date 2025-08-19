@@ -366,8 +366,6 @@ Examples:
 
 Returns: File paths with line numbers and matching lines, plus context if requested"""
 
-
-
 WRITE_DESCRIPTION = """Write a file to the local filesystem. Overwrites the existing file if there is one.
 
 Before using this tool:
