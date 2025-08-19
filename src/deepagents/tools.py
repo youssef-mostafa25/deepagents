@@ -108,7 +108,7 @@ def edit_file(
     state: Annotated[DeepAgentState, InjectedState],
     tool_call_id: Annotated[str, InjectedToolCallId],
     replace_all: bool = False,
-) -> str:
+) -> Command:
     """Write to a file."""
     mock_filesystem = state.get("files", {})
     # Check if file exists in mock filesystem
@@ -146,9 +146,7 @@ def edit_file(
     return Command(
         update={
             "files": mock_filesystem,
-            "messages": [
-                ToolMessage(f"Updated file {file_path}", tool_call_id=tool_call_id)
-            ],
+            "messages": [ToolMessage(result_msg, tool_call_id=tool_call_id)],
         }
     )
 
