@@ -249,7 +249,6 @@ def grep(
     case_sensitive: bool = False,
     context_lines: int = 0,
     regex: bool = False,
-    recursive: bool = True,
     state=None,
 ) -> str:
     """Search for text patterns within files."""
