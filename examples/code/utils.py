@@ -33,7 +33,6 @@ def validate_command_safety(command: str) -> CommandSafetyValidation:
     try:
         # Check if Anthropic client is available
         if anthropic_client is None:
-            # If no API key, return a conservative assessment
             return CommandSafetyValidation(
                 is_safe=False,
                 threat_type="MALICIOUS_COMMAND",

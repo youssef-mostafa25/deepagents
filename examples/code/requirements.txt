@@ -4,12 +4,3 @@ langgraph-cli[inmem]
 tavily-python
 langchain-anthropic
 pydantic
-
-# Optional: Install ripgrep for faster grep operations
-# brew install ripgrep (macOS) or apt install ripgrep (Ubuntu)
-
-# API Keys Required:
-# - TAVILY_API_KEY: For web search functionality
-#   Get your free API key at: https://tavily.com/
-# - ANTHROPIC_API_KEY: For command safety validation
-#   Get your API key at: https://console.anthropic.com/
