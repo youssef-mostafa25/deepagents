@@ -48,27 +48,8 @@ def execute_bash(command: str, timeout: int = 30, cwd: str = None) -> Dict[str, 
                 "safety_validation": safety_validation.model_dump()
             }
         
-        # Add interrupt for human approval before executing the command
-        is_approved = interrupt({
-            "question": f"Do you want to execute this bash command?\n\nCommand: {command}\nDirectory: {cwd or 'current directory'}\nTimeout: {timeout}s\n\nRespond with True to approve or False to reject.",
-            "command": command,
-            "cwd": cwd or "current directory",
-            "timeout": timeout,
-            "safety_validation": safety_validation.model_dump()
-        })
-
-        print(is_approved)
-        
-        # Check user decision
-        if not is_approved:
-            # User rejected the command
-            return {
-                "success": False,
-                "stdout": "",
-                "stderr": "Command execution cancelled by user",
-                "return_code": -2,
-                "user_approved": False
-            }
+        # Command approval is now handled by the post model hook
+        # No need for duplicate approval here
         
         # If command is safe and approved, proceed with execution
         # Determine the appropriate shell based on platform
@@ -87,8 +68,7 @@ def execute_bash(command: str, timeout: int = 30, cwd: str = None) -> Dict[str, 
             "stdout": result.stdout,
             "stderr": result.stderr,
             "return_code": result.returncode,
-            "safety_validation": safety_validation.model_dump(),
-            "user_approved": True
+            "safety_validation": safety_validation.model_dump()
         }
 
     except subprocess.TimeoutExpired:
@@ -296,5 +276,5 @@ agent = create_deep_agent(
     subagents=[code_reviewer_agent, debugger_agent, test_generator_agent],
     local_filesystem=True,
     state_schema=CodingAgentState,
-    post_model_hook=post_model_hook,  # Pass the post model hook directly
+    post_model_hook=post_model_hook,
 ).with_config({"recursion_limit": 1000})

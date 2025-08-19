@@ -30,7 +30,7 @@ def create_coding_agent_post_model_hook():
             
             local_tools = {
                 "ls", "read_file", "write_file", "edit_file", 
-                "glob", "grep", "write_todos"
+                "glob", "grep", "write_todos", "execute_bash"
             }
             
             if tool_name not in local_tools:
