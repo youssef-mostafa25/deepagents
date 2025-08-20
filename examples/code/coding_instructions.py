@@ -166,12 +166,10 @@ Parameters:
 - limit: Maximum number of lines to read (default 2000)
 
 Examples:
-- Read entire file: `read_file(file_path="/path/to/file.py")`
-- Read specific lines: `read_file(file_path="/path/to/file.py", offset=10, limit=50)`
-- Read image: `read_file(file_path="/path/to/screenshot.png")`
-- Read PDF: `read_file(file_path="/path/to/document.pdf")`
-- Read notebook: `read_file(file_path="/path/to/analysis.ipynb")`
-- Read temporary screenshot: `read_file(file_path="/var/folders/123/abc/T/TemporaryItems/NSIRD_screencaptureui_ZfB1tD/Screenshot.png")`
+- Read entire file: `read_file(file_path="/Users/palash/Desktop/deep-agents-ui/src/main.py")`
+- Read specific lines: `read_file(file_path="/Users/palash/Desktop/deep-agents-ui/src/main.py", offset=10, limit=50)`
+
+CRITICAL: Always use absolute paths (starting with /)
 
 ## write_file
 
@@ -188,20 +186,23 @@ Parameters:
 - content: The content to write to the file
 
 Examples:
-- Create new file: `write_file(file_path="/path/to/new.py", content="print('Hello')")`
-- Replace file: `write_file(file_path="/path/to/existing.py", content="new content")`
+- Create new file: `write_file(file_path="/Users/palash/Desktop/deep-agents-ui/src/new.py", content="print('Hello')")`
+- Replace file: `write_file(file_path="/Users/palash/Desktop/deep-agents-ui/src/existing.py", content="new content")`
+
+CRITICAL: Always use absolute paths (starting with /)
 
 ## ls
 
-Lists files and directories in the current working directory.
+Lists files and directories in the specified directory.
 
 Usage:
-- Shows all files and directories in the current location
+- Shows all files and directories in the specified location
 - Use to explore directory structure before reading/writing files
-- No parameters needed - shows current directory contents
+- CRITICAL: Always use absolute paths (starting with /)
 
 Examples:
-- List current directory: `ls()`
+- List target directory: `ls("/Users/palash/Desktop/deep-agents-ui")`
+- List subdirectory: `ls("/Users/palash/Desktop/deep-agents-ui/src")`
 
 ## glob
 
@@ -220,10 +221,12 @@ Parameters:
 - recursive: Enable recursive search (default True)
 
 Examples:
-- Find all Python files: `glob(pattern="*.py")`
-- Find files recursively: `glob(pattern="**/*.py")`
-- Find in specific directory: `glob(pattern="*.js", path="/path/to/src")`
-- Find test files: `glob(pattern="test_*.py", recursive=True)`
+- Find all Python files: `glob(pattern="*.py", path="/Users/palash/Desktop/deep-agents-ui")`
+- Find files recursively: `glob(pattern="**/*.py", path="/Users/palash/Desktop/deep-agents-ui")`
+- Find in specific directory: `glob(pattern="*.js", path="/Users/palash/Desktop/deep-agents-ui/src")`
+- Find test files: `glob(pattern="test_*.py", path="/Users/palash/Desktop/deep-agents-ui", recursive=True)`
+
+CRITICAL: Always use absolute paths for the path parameter
 
 ## grep
 
@@ -240,11 +243,13 @@ Usage:
 - regex: Treat pattern as regular expression (defaults to False)
 
 Examples:
-- Search for "TODO" in specific files: `grep(pattern="TODO", files=["main.py", "utils.py"])`
-- Search in all Python files: `grep(pattern="def main", path=".", file_pattern="*.py")`
+- Search for "TODO" in specific files: `grep(pattern="TODO", files=["/Users/palash/Desktop/deep-agents-ui/main.py", "/Users/palash/Desktop/deep-agents-ui/utils.py"])`
+- Search in all Python files: `grep(pattern="def main", path="/Users/palash/Desktop/deep-agents-ui", file_pattern="*.py")`
 - Regex search: `grep(pattern="function\\s+\\w+", regex=True, file_pattern="*.js")`
 - Case-sensitive search: `grep(pattern="ClassName", case_sensitive=True)`
 - With context: `grep(pattern="import", context_lines=2)`
+
+CRITICAL: Always use absolute paths for files and path parameters
 
 ## execute_bash
 

@@ -111,7 +111,9 @@ Usage:
 - Any lines longer than 2000 characters will be truncated
 - Results are returned using cat -n format, with line numbers starting at 1
 - You have the capability to call multiple tools in a single response. It is always better to speculatively read multiple files as a batch that are potentially useful. 
-- If you read a file that exists but has empty contents you will receive a system reminder warning in place of file contents."""
+- If you read a file that exists but has empty contents you will receive a system reminder warning in place of file contents
+
+CRITICAL: Always use absolute paths (starting with /)"""
 
 GLOB_DESCRIPTION = """Find files and directories using glob patterns (similar to Unix glob/find commands).
 
@@ -132,7 +134,9 @@ Glob Pattern Examples:
 - "**/node_modules" - All node_modules directories
 - "*.{py,js,ts}" - Files with .py, .js, or .ts extensions
 
-Returns: List of matching file/directory paths, one per line"""
+Returns: List of matching file/directory paths, one per line
+
+CRITICAL: Always use absolute paths for the path parameter"""
 
 GREP_DESCRIPTION = """A powerful search tool that uses ripgrep (rg) for fast text pattern matching.
 
@@ -155,7 +159,9 @@ Examples:
 - Case-sensitive search: pattern="ClassName", case_sensitive=True
 - With context: pattern="import", context_lines=2
 
-Returns: File paths with line numbers and matching lines, plus context if requested"""
+Returns: File paths with line numbers and matching lines, plus context if requested
+
+CRITICAL: Always use absolute paths for files and path parameters"""
 
 WRITE_DESCRIPTION = """Write a file to the local filesystem. Overwrites the existing file if there is one.
 
@@ -172,7 +178,9 @@ Usage:
 - file_path: Path to the file to write (absolute or relative path)
 - content: The content to write to the file
 
-The tool will automatically create parent directories if they don't exist."""
+The tool will automatically create parent directories if they don't exist.
+
+CRITICAL: Always use absolute paths (starting with /)"""
 
 TASK_DESCRIPTION_PREFIX = """Launch a new agent to handle complex, multi-step tasks autonomously. 
 

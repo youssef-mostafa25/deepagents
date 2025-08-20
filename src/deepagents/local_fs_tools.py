@@ -13,7 +13,6 @@ from deepagents.prompts import (
     WRITE_DESCRIPTION,
 )
 
-
 def ls(path: str = ".", state=None) -> list[str]:
     """List all files in the specified directory."""
     try:
