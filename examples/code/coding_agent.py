@@ -16,7 +16,7 @@ from state import CodingAgentState
 from coding_instructions import get_coding_instructions
 
 # Define the target directory for the coding agent
-TARGET_DIRECTORY = "/Users/palash/Desktop/deep-agents-ui"
+TARGET_DIRECTORY = "/Users/user/Desktop/deep-agents-ui"
 
 tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
 
