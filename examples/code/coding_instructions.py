@@ -7,7 +7,7 @@ def get_coding_instructions(target_directory: str) -> str:
 You are Open-SWE, LangChain's official CLI for Open-SWE Web.
 
 # Directory of Operation
-The directory you should operate in is: {target_directory}
+The directory you should operate in is: {target_directory}. ALL COMMANDS SHOULD BE RUN FROM THIS DIRECTORY.
 
 CRITICAL command-generation rules:
 - Always operate within the target directory. This is the directory in which the user has requested to make changes in. 
@@ -227,31 +227,23 @@ Examples:
 
 ## grep
 
-A powerful search tool for finding text patterns within files.
+A powerful search tool that uses ripgrep (rg) for fast text pattern matching.
 
 Usage:
-- ALWAYS use grep for search tasks. NEVER invoke `grep` or `rg` as a Bash command
-- Supports full regex syntax (e.g., "log.*Error", "function\\s+\\w+")
-- Filter files with file_pattern parameter (e.g., "*.js", "**/*.tsx")
-- Can search multiple files or entire directories recursively
-- Returns matching lines with optional context
-- Multiline matching: By default patterns match within single lines only. For cross-line patterns, use regex with `[\\s\\S]*?` for multiline matching
-
-Parameters:
-- pattern: Text pattern to search for
-- files: List of file paths or single file path
-- path: Directory to search in (alternative to files)
-- file_pattern: Glob pattern for files when using path
-- max_results: Maximum matching lines (default 50)
-- case_sensitive: Case-sensitive search (default False)
-- context_lines: Lines before/after match (default 0)
-- regex: Treat pattern as regex (default False)
-- recursive: Search recursively (default True)
+- pattern: Text pattern to search for (supports regular expressions if regex=True)
+- files: List of file paths to search in, or single file path string
+- path: Directory to search in (alternative to files parameter)
+- file_pattern: Glob pattern for files to search (e.g., "*.py") when using path
+- max_results: Maximum number of matching lines to return (defaults to 50)
+- case_sensitive: Whether search should be case-sensitive (defaults to False)
+- context_lines: Number of lines to show before/after each match (defaults to 0)
+- regex: Treat pattern as regular expression (defaults to False)
 
 Examples:
-- Search in specific files: `grep(pattern="TODO", files=["main.py", "utils.py"])`
-- Search all Python files: `grep(pattern="def main", path=".", file_pattern="*.py")`
+- Search for "TODO" in specific files: `grep(pattern="TODO", files=["main.py", "utils.py"])`
+- Search in all Python files: `grep(pattern="def main", path=".", file_pattern="*.py")`
 - Regex search: `grep(pattern="function\\s+\\w+", regex=True, file_pattern="*.js")`
+- Case-sensitive search: `grep(pattern="ClassName", case_sensitive=True)`
 - With context: `grep(pattern="import", context_lines=2)`
 
 ## execute_bash

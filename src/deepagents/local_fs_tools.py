@@ -1,6 +1,7 @@
 import os
 import pathlib
 import re
+import subprocess
 from langchain_core.tools import tool
 from typing import Annotated, Optional, Union
 
@@ -251,160 +252,72 @@ def grep(
     regex: bool = False,
     state=None,
 ) -> str:
-    """Search for text patterns within files."""
+    """Search for text patterns within files using ripgrep."""
     try:
         if not files and not path:
             return "Error: Must provide either 'files' parameter or 'path' parameter"
 
-        # Prepare list of files to search
-        files_to_search = []
-
-        if files:
-            # Convert single file to list
-            if isinstance(files, str):
-                files = [files]
-
-            # Validate and add files
-            for file_path in files:
-                path_obj = pathlib.Path(file_path)
-                if path_obj.exists() and path_obj.is_file():
-                    files_to_search.append(path_obj)
-                else:
-                    return f"Error: File '{file_path}' does not exist or is not a file"
-
-        elif path:
-            # Search for files in directory using file_pattern
-            path_obj = pathlib.Path(path)
-            if not path_obj.exists():
-                return f"Error: Path '{path}' does not exist"
-
-            if not path_obj.is_dir():
-                return f"Error: Path '{path}' is not a directory"
-
-            # Find files matching the file pattern
-            if recursive:
-                matches = path_obj.rglob(file_pattern)
-            else:
-                matches = path_obj.glob(file_pattern)
-
-            for match in matches:
-                if match.is_file():
-                    files_to_search.append(match)
-
-        if not files_to_search:
-            return f"No files found to search"
-
-        # Prepare regex pattern
+        # Build ripgrep command
+        cmd = ["rg"]
+        
+        # Add pattern
         if regex:
-            try:
-                flags = 0 if case_sensitive else re.IGNORECASE
-                compiled_pattern = re.compile(pattern, flags)
-            except re.error as e:
-                return f"Error: Invalid regex pattern: {str(e)}"
+            cmd.extend(["-e", pattern])
         else:
-            compiled_pattern = None
-
-        results = []
-        total_matches = 0
-
-        for file_path in files_to_search:
-            if total_matches >= max_results:
-                break
-
-            try:
-                # Try to read file as text
-                try:
-                    with open(file_path, "r", encoding="utf-8") as f:
-                        lines = f.readlines()
-                except UnicodeDecodeError:
-                    # Skip binary files
-                    continue
-
-                file_matches = []
-
-                # Search through lines
-                for line_num, line in enumerate(lines, 1):
-                    line_content = line.rstrip("\n\r")
-                    match_found = False
-
-                    if regex:
-                        match_found = compiled_pattern.search(line_content) is not None
-                    else:
-                        if case_sensitive:
-                            match_found = pattern in line_content
-                        else:
-                            match_found = pattern.lower() in line_content.lower()
-
-                    if match_found:
-                        # Add context lines if requested
-                        context_start = max(0, line_num - 1 - context_lines)
-                        context_end = min(len(lines), line_num + context_lines)
-
-                        match_info = {
-                            "line_num": line_num,
-                            "line_content": line_content,
-                            "context_lines": [],
-                        }
-
-                        if context_lines > 0:
-                            for ctx_line_num in range(context_start, context_end):
-                                ctx_line_content = lines[ctx_line_num].rstrip("\n\r")
-                                is_match_line = (ctx_line_num + 1) == line_num
-                                match_info["context_lines"].append(
-                                    {
-                                        "line_num": ctx_line_num + 1,
-                                        "content": ctx_line_content,
-                                        "is_match": is_match_line,
-                                    }
-                                )
-
-                        file_matches.append(match_info)
-                        total_matches += 1
-
-                        if total_matches >= max_results:
-                            break
-
-                # Add file results if there were matches
-                if file_matches:
-                    file_result_lines = [f"📄 {file_path}"]
-
-                    for match in file_matches:
-                        if context_lines > 0:
-                            # Show context
-                            for ctx in match["context_lines"]:
-                                prefix = ">" if ctx["is_match"] else " "
-                                file_result_lines.append(
-                                    f"{prefix} {ctx['line_num']:4d}: {ctx['content']}"
-                                )
-                            file_result_lines.append("")  # Empty line between matches
-                        else:
-                            # Show just the matching line
-                            file_result_lines.append(
-                                f"  {match['line_num']:4d}: {match['line_content']}"
-                            )
-
-                    results.append("\n".join(file_result_lines))
-
-            except Exception as e:
-                # Skip files that can't be read
-                continue
-
-        if not results:
-            pattern_desc = (
-                f"regex pattern '{pattern}'" if regex else f"text '{pattern}'"
+            cmd.extend(["-F", pattern])
+        
+        # Add case sensitivity
+        if not case_sensitive:
+            cmd.append("-i")
+        
+        # Add context lines
+        if context_lines > 0:
+            cmd.extend(["-C", str(context_lines)])
+        
+        # Add max results
+        if max_results > 0:
+            cmd.extend(["-m", str(max_results)])
+        
+        # Add file pattern if specified
+        if file_pattern != "*":
+            cmd.extend(["-g", file_pattern])
+        
+        # Add files or path
+        if files:
+            if isinstance(files, str):
+                cmd.append(files)
+            else:
+                cmd.extend(files)
+        elif path:
+            cmd.append(path)
+        
+        # Run ripgrep
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=30,
+                cwd=path if path and os.path.isdir(path) else None
             )
-            case_desc = " (case-sensitive)" if case_sensitive else " (case-insensitive)"
-            return f"No matches found for {pattern_desc}{case_desc}"
-
-        # Format final results
-        match_count = len(results)
-        header = f"Found matches in {match_count} files"
-        if total_matches >= max_results:
-            header += f" (limited to {max_results} total matches)"
-        header += ":\n"
-
-        return header + "\n" + "\n\n".join(results)
-
+            
+            if result.returncode == 0:
+                return result.stdout
+            elif result.returncode == 1:
+                # No matches found
+                pattern_desc = f"regex pattern '{pattern}'" if regex else f"text '{pattern}'"
+                case_desc = " (case-sensitive)" if case_sensitive else " (case-insensitive)"
+                return f"No matches found for {pattern_desc}{case_desc}"
+            else:
+                return f"Error running ripgrep: {result.stderr}"
+                
+        except subprocess.TimeoutExpired:
+            return "Error: ripgrep search timed out"
+        except FileNotFoundError:
+            return "Error: ripgrep (rg) not found. Please install ripgrep to use this tool."
+        except Exception as e:
+            return f"Error running ripgrep: {str(e)}"
+            
     except Exception as e:
         return f"Error in grep search: {str(e)}"
 

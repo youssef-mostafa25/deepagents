@@ -1,5 +1,5 @@
 """
-Post model hook for the coding agent with interrupt functionality.
+Post model hook for the coding agent with interrupt functionality for write commands only.
 """
 
 from typing import Dict, Any
@@ -8,10 +8,10 @@ from langgraph.types import interrupt
 
 
 def create_coding_agent_post_model_hook():
-    """Create a post model hook for the coding agent with interrupt functionality."""
+    """Create a post model hook for the coding agent with interrupt functionality for write commands only."""
     
     def post_model_hook(state: Dict[str, Any]) -> Dict[str, Any]:
-        """Post model hook that checks for tool calls and triggers interrupts if needed."""
+        """Post model hook that checks for write tool calls and triggers interrupts if needed."""
         # Get the last message from the state
         messages = state.get("messages", [])
         if not messages:
@@ -24,31 +24,32 @@ def create_coding_agent_post_model_hook():
         
         approved_tool_calls = []
         
+        # Define write tools that need approval
+        write_tools = {
+            "write_file", "edit_file", "execute_bash"
+        }
+        
         for tool_call in last_message.tool_calls:
             tool_name = tool_call.get("name", "")
             tool_args = tool_call.get("args", {})
             
-            local_tools = {
-                "ls", "read_file", "write_file", "edit_file", 
-                "glob", "grep", "write_todos", "execute_bash"
-            }
-            
-            if tool_name not in local_tools:
-                approved_tool_calls.append(tool_call)
-                continue
-            
-            question = f"Do you want to approve this command?\n\nCommand: {tool_name}\nArgs: {tool_args}\n\nRespond with True to approve or False to reject."
-            
-            is_approved = interrupt({
-                "question": question,
-                "command": tool_name,
-                "args": tool_args
-            })
-            
-            if is_approved:
-                approved_tool_calls.append(tool_call)
+            # Ask for approval for write tools only
+            if tool_name in write_tools:
+                question = f"Do you want to approve this write command?\n\nCommand: {tool_name}\nArgs: {tool_args}\n\nRespond with True to approve or False to reject."
+                
+                is_approved = interrupt({
+                    "question": question,
+                    "command": tool_name,
+                    "args": tool_args
+                })
+                
+                if is_approved:
+                    approved_tool_calls.append(tool_call)
+                else:
+                    continue
             else:
-                continue
+                # For all other tools, allow them to execute without approval
+                approved_tool_calls.append(tool_call)
         
         if len(approved_tool_calls) != len(last_message.tool_calls):
             new_message = AIMessage(
