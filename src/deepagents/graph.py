@@ -16,6 +16,7 @@ from deepagents.local_fs_tools import (
     edit_file as local_edit_file,
     glob as local_glob,
     grep as local_grep,
+    str_replace_based_edit_tool,
 )
 from deepagents.state import DeepAgentState
 from typing import Sequence, Union, Callable, Any, TypeVar, Type, Optional
@@ -86,6 +87,7 @@ def create_deep_agent(
             local_edit_file,
             local_glob,
             local_grep,
+            str_replace_based_edit_tool,
         ]
     else:
         built_in_tools = [write_todos, write_file, read_file, ls, edit_file, glob, grep]

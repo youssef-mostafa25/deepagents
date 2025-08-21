@@ -19,9 +19,12 @@ from coding_instructions import get_coding_instructions
 from langsmith import Client
 from langsmith.wrappers import wrap_openai
 from langchain_core.tracers.langchain import LangChainTracer
+import dotenv
+
+dotenv.load_dotenv()
 
 # Define the target directory for the coding agent
-TARGET_DIRECTORY = "/Users/user/Desktop/deep-agents-ui"
+TARGET_DIRECTORY = os.environ.get("OPEN_SWE_LOCAL_PROJECT_PATH")
 
 # Initialize LangSmith client and tracing
 langsmith_client = None
