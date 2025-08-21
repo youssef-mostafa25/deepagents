@@ -155,7 +155,7 @@ Usage:
 Examples:
 - Search for "TODO" in specific files: pattern="TODO", files=["main.py", "utils.py"]
 - Search in all Python files: pattern="def main", path=".", file_pattern="*.py"
-- Regex search: pattern=r"function\s+\w+", regex=True, file_pattern="*.js"
+- Regex search: pattern=r"function\\s+\\w+", regex=True, file_pattern="*.js"
 - Case-sensitive search: pattern="ClassName", case_sensitive=True
 - With context: pattern="import", context_lines=2
 
@@ -179,6 +179,34 @@ Usage:
 - content: The content to write to the file
 
 The tool will automatically create parent directories if they don't exist.
+
+CRITICAL: Always use absolute paths (starting with /)"""
+
+STR_REPLACE_EDIT_DESCRIPTION = """A versatile text editor tool for viewing, editing, creating, and inserting content in files.
+
+This tool provides multiple commands for different file operations:
+
+Commands:
+- view: Display file contents with line numbers or list directory contents
+- str_replace: Replace exact text matches in files (safer than edit_file for single replacements)
+- create: Create new files with specified content
+- insert: Insert text at specific line numbers
+
+Usage:
+- command: The operation to perform (view, str_replace, create, insert)
+- path: File or directory path (use absolute paths)
+- old_str: Exact string to replace (for str_replace)
+- new_str: Replacement string (for str_replace/insert)
+- view_range: [start_line, end_line] for viewing specific lines (1-indexed)
+- file_text: Content for new file (for create)
+- insert_line: Line number after which to insert (for insert, 0-indexed)
+
+Examples:
+- View file: command="view", path="/path/to/file.py"
+- View specific lines: command="view", path="/path/to/file.py", view_range=[10, 20]
+- Replace text: command="str_replace", path="/path/to/file.py", old_str="old text", new_str="new text"
+- Create file: command="create", path="/path/to/new.py", file_text="print('hello')"
+- Insert line: command="insert", path="/path/to/file.py", insert_line=5, new_str="new line content"
 
 CRITICAL: Always use absolute paths (starting with /)"""
 

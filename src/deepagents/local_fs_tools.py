@@ -11,6 +11,7 @@ from deepagents.prompts import (
     GLOB_DESCRIPTION,
     GREP_DESCRIPTION,
     WRITE_DESCRIPTION,
+    STR_REPLACE_EDIT_DESCRIPTION,
 )
 
 def ls(path: str = ".", state=None) -> list[str]:
@@ -321,7 +322,7 @@ def grep(
         return f"Error in grep search: {str(e)}"
 
 
-@tool
+@tool(description=STR_REPLACE_EDIT_DESCRIPTION)
 def str_replace_based_edit_tool(
     command: Literal["view", "str_replace", "create", "insert"],
     path: str,
