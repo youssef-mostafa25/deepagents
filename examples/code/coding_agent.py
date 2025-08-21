@@ -15,8 +15,28 @@ from langgraph.types import Command
 from state import CodingAgentState
 from coding_instructions import get_coding_instructions
 
+# LangSmith tracing imports
+from langsmith import Client
+from langsmith.wrappers import wrap_openai
+from langchain_core.tracers.langchain import LangChainTracer
+
 # Define the target directory for the coding agent
 TARGET_DIRECTORY = "/Users/user/Desktop/deep-agents-ui"
+
+# Initialize LangSmith client and tracing
+langsmith_client = None
+langchain_tracer = None
+
+# Initialize LangSmith if API key is available
+if os.environ.get("LANGCHAIN_API_KEY"):
+    try:
+        langsmith_client = Client()
+        langchain_tracer = LangChainTracer(
+            project_name=os.environ.get("LANGCHAIN_PROJECT", "coding-agent"),
+            client=langsmith_client
+        )
+    except Exception as e:
+        print(f"Warning: Failed to initialize LangSmith tracing: {e}")
 
 tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
 
@@ -191,7 +211,13 @@ coding_instructions = get_coding_instructions(TARGET_DIRECTORY)
 # Create the post model hook
 post_model_hook = create_coding_agent_post_model_hook()
 
-# Create the coding agent with interrupt handling
+# Create the coding agent with interrupt handling and LangSmith tracing
+config = {"recursion_limit": 1000}
+
+# Add LangSmith tracer to config if available
+if langchain_tracer:
+    config["callbacks"] = [langchain_tracer]
+
 agent = create_deep_agent(
     [execute_bash, http_request, web_search],
     coding_instructions,
@@ -199,4 +225,4 @@ agent = create_deep_agent(
     local_filesystem=True,
     state_schema=CodingAgentState,
     post_model_hook=post_model_hook,
-).with_config({"recursion_limit": 1000})
+).with_config(config)

@@ -26,7 +26,7 @@ def create_coding_agent_post_model_hook():
         
         # Define write tools that need approval
         write_tools = {
-            "write_file", "edit_file", "execute_bash"
+            
         }
         
         for tool_call in last_message.tool_calls:

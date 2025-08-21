@@ -114,8 +114,8 @@ Before executing the command, please follow these steps:
 2. Command Execution:
    - Always quote file paths that contain spaces with double quotes (e.g., cd "path with spaces/file.txt")
    - Examples of proper quoting:
-     - cd "/Users/name/My Documents" (correct)
-     - cd /Users/name/My Documents (incorrect - will fail)
+     - cd "/Users/palash/My Documents" (correct)
+     - cd /Users/palash/My Documents (incorrect - will fail)
      - python "/path/with spaces/script.py" (correct)
      - python /path/with spaces/script.py (incorrect - will fail)
    - After ensuring proper quoting, execute the command.
@@ -166,8 +166,8 @@ Parameters:
 - limit: Maximum number of lines to read (default 2000)
 
 Examples:
-- Read entire file: `read_file(file_path="/Users/user/Desktop/deep-agents-ui/src/main.py")`
-- Read specific lines: `read_file(file_path="/Users/user/Desktop/deep-agents-ui/src/main.py", offset=10, limit=50)`
+- Read entire file: `read_file(file_path="/Users/palash/Desktop/deep-agents-ui/src/main.py")`
+- Read specific lines: `read_file(file_path="/Users/palash/Desktop/deep-agents-ui/src/main.py", offset=10, limit=50)`
 
 CRITICAL: Always use absolute paths (starting with /)
 
@@ -186,8 +186,8 @@ Parameters:
 - content: The content to write to the file
 
 Examples:
-- Create new file: `write_file(file_path="/Users/user/Desktop/deep-agents-ui/src/new.py", content="print('Hello')")`
-- Replace file: `write_file(file_path="/Users/user/Desktop/deep-agents-ui/src/existing.py", content="new content")`
+- Create new file: `write_file(file_path="/Users/palash/Desktop/deep-agents-ui/src/new.py", content="print('Hello')")`
+- Replace file: `write_file(file_path="/Users/palash/Desktop/deep-agents-ui/src/existing.py", content="new content")`
 
 CRITICAL: Always use absolute paths (starting with /)
 
@@ -201,8 +201,8 @@ Usage:
 - CRITICAL: Always use absolute paths (starting with /)
 
 Examples:
-- List target directory: `ls("/Users/user/Desktop/deep-agents-ui")`
-- List subdirectory: `ls("/Users/user/Desktop/deep-agents-ui/src")`
+- List target directory: `ls("/Users/palash/Desktop/deep-agents-ui")`
+- List subdirectory: `ls("/Users/palash/Desktop/deep-agents-ui/src")`
 
 ## glob
 
@@ -221,10 +221,10 @@ Parameters:
 - recursive: Enable recursive search (default True)
 
 Examples:
-- Find all Python files: `glob(pattern="*.py", path="/Users/user/Desktop/deep-agents-ui")`
-- Find files recursively: `glob(pattern="**/*.py", path="/Users/user/Desktop/deep-agents-ui")`
-- Find in specific directory: `glob(pattern="*.js", path="/Users/user/Desktop/deep-agents-ui/src")`
-- Find test files: `glob(pattern="test_*.py", path="/Users/user/Desktop/deep-agents-ui", recursive=True)`
+- Find all Python files: `glob(pattern="*.py", path="/Users/palash/Desktop/deep-agents-ui")`
+- Find files recursively: `glob(pattern="**/*.py", path="/Users/palash/Desktop/deep-agents-ui")`
+- Find in specific directory: `glob(pattern="*.js", path="/Users/palash/Desktop/deep-agents-ui/src")`
+- Find test files: `glob(pattern="test_*.py", path="/Users/palash/Desktop/deep-agents-ui", recursive=True)`
 
 CRITICAL: Always use absolute paths for the path parameter
 
@@ -243,8 +243,8 @@ Usage:
 - regex: Treat pattern as regular expression (defaults to False)
 
 Examples:
-- Search for "TODO" in specific files: `grep(pattern="TODO", files=["/Users/user/Desktop/deep-agents-ui/main.py", "/Users/user/Desktop/deep-agents-ui/utils.py"])`
-- Search in all Python files: `grep(pattern="def main", path="/Users/user/Desktop/deep-agents-ui", file_pattern="*.py")`
+- Search for "TODO" in specific files: `grep(pattern="TODO", files=["/Users/palash/Desktop/deep-agents-ui/main.py", "/Users/palash/Desktop/deep-agents-ui/utils.py"])`
+- Search in all Python files: `grep(pattern="def main", path="/Users/palash/Desktop/deep-agents-ui", file_pattern="*.py")`
 - Regex search: `grep(pattern="function\\s+\\w+", regex=True, file_pattern="*.js")`
 - Case-sensitive search: `grep(pattern="ClassName", case_sensitive=True)`
 - With context: `grep(pattern="import", context_lines=2)`
