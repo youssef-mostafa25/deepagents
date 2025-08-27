@@ -68,7 +68,7 @@ def create_interrupt_hook(
         tool_args = tool_call["args"]
         description = f"{message_prefix}\n\nTool: {tool_name}\nArgs: {tool_args}"
         tool_config = tool_configs[tool_name]
-        default_tool_config: HumanInterruptConfig = {"allow_accept": True, "allow_edit": True, "allow_respond": False, "allow_ignore": False}
+        default_tool_config: HumanInterruptConfig = {"allow_accept": True, "allow_edit": True, "allow_respond": True, "allow_ignore": False}
 
         request: HumanInterrupt = {
             "action_request": ActionRequest(
@@ -91,9 +91,13 @@ def create_interrupt_hook(
             approved_tool_calls.append(tool_call)
         elif response["type"] == "edit":
             edited: ActionRequest = response["args"]
-            tool_call['name'] = edited['action']
-            tool_call['args'] = edited['args']
-            approved_tool_calls.append(tool_call)
+            new_tool_call = {
+                "type": "tool_call",
+                "name": edited["action"],
+                "args": edited["args"],
+                "id": tool_call["id"],
+            }
+            approved_tool_calls.append(new_tool_call)
         elif response["type"] == "response":
             response_message = {
                 "type": "tool",

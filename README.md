@@ -255,13 +255,20 @@ These can be disabled via the [`builtin_tools`](#builtintools--optional-) parame
 
 ### Tool Interrupts
 
-`deepagents` supports human-in-the-loop approval for tool execution. You can configure specific tools to require human approval before execution using the `interrupt_config` parameter. You can also customize the message prefix shown to users for each tool when approval is required.
+`deepagents` supports human-in-the-loop approval for tool execution. You can configure specific tools to require human approval before execution using the `interrupt_config` parameter, which maps tool names to `HumanInterruptConfig`.
 
-The interrupt configuration uses four boolean parameters:
+`HumanInterruptConfig` is how you specify what type of human in the loop patterns are supported. There are four general types:
+
 - `allow_ignore`: Whether the user can skip the tool call
 - `allow_respond`: Whether the user can add a text response
 - `allow_edit`: Whether the user can edit the tool arguments
 - `allow_accept`: Whether the user can accept the tool call
+
+Currently, `deepagents` does NOT support `allow_ignore`
+
+Currently, `deepagents` only support interrupting one tool at a time. If multiple tools are called in parallel, each requiring interrupts, then the agent will error.
+
+Instead of specifying a `HumanInterruptConfig` for a tool, you can also just set `True`. This will set `allow_ignore`, `allow_respond`, and `allow_edit` to be `True`.
 
 Example usage:
 
@@ -284,7 +291,7 @@ agent = create_deep_agent(
 )
 ```
 
-When a tool call requires approval, the agent will pause and wait for human input before proceeding. The message shown to users will include your custom prefix (or "Tool execution requires approval" by default) followed by the tool name and arguments. Multiple tool calls are processed in parallel, allowing you to review and approve multiple operations at once.
+When a tool call requires approval, the agent will pause and wait for human input before proceeding. The message shown to users will include your custom prefix (or "Tool execution requires approval" by default) followed by the tool name and arguments.
 
 ## MCP
 
