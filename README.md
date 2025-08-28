@@ -285,12 +285,16 @@ agent = create_deep_agent(
     tools=[your_tools],
     instructions="Your instructions here",
     interrupt_config={
-        "write_file": {
+        # You can specify a dictionary for fine grained control over what interrupt options exist
+        "tool_1": {
             "allow_ignore": False,
             "allow_respond": True,
             "allow_edit": True,
             "allow_accept":True,
         },
+        # You can specify a boolean for shortcut
+        # This is a shortcut for the same functionality as above
+        "tool_2": True,
     }
 )
 
