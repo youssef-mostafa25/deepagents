@@ -253,11 +253,12 @@ By default, deep agents come with five built-in tools:
 
 These can be disabled via the [`builtin_tools`](#builtintools--optional-) parameter.
 
-### Tool Interrupts
+### Human-in-the-Loop
 
 `deepagents` supports human-in-the-loop approval for tool execution. You can configure specific tools to require human approval before execution using the `interrupt_config` parameter, which maps tool names to `HumanInterruptConfig`.
 
-`HumanInterruptConfig` is how you specify what type of human in the loop patterns are supported. There are four general types:
+`HumanInterruptConfig` is how you specify what type of human in the loop patterns are supported. 
+It is a dictionary with four specific keys:
 
 - `allow_ignore`: Whether the user can skip the tool call
 - `allow_respond`: Whether the user can add a text response
@@ -270,28 +271,89 @@ Currently, `deepagents` only support interrupting one tool at a time. If multipl
 
 Instead of specifying a `HumanInterruptConfig` for a tool, you can also just set `True`. This will set `allow_ignore`, `allow_respond`, and `allow_edit` to be `True`.
 
+In order to use human in the loop, you need to have a checkpointer attached.
+Note: if you are using LangGraph Platform, this is automatically attached.
+
 Example usage:
 
 ```python
 from deepagents import create_deep_agent
-from langgraph.prebuilt.interrupt import HumanInterruptConfig
+from langgraph.checkpoint.memory import InMemorySaver
 
 # Create agent with file operations requiring approval
 agent = create_deep_agent(
     tools=[your_tools],
     instructions="Your instructions here",
     interrupt_config={
-        "write_file": HumanInterruptConfig(
-            allow_ignore=False,
-            allow_respond=False,
-            allow_edit=False,
-            allow_accept=True,
-        ),
+        "write_file": {
+            "allow_ignore": False,
+            "allow_respond": True,
+            "allow_edit": True,
+            "allow_accept":True,
+        },
     }
 )
+
+checkpointer= InMemorySaver()
+agent.checkpointer = checkpointer
 ```
 
-When a tool call requires approval, the agent will pause and wait for human input before proceeding. The message shown to users will include your custom prefix (or "Tool execution requires approval" by default) followed by the tool name and arguments.
+#### Approve
+
+To "approve" a tool call means the agent will execute the tool call as is.
+
+This flow shows how to approve a tool call (assuming the tool requiring approval is called):
+
+```python
+config = {"configurable": {"thread_id": "1"}}
+for s in agent.stream({"messages": [{"role": "user", "content": message}]}, config=config):
+    print(s)
+# If this calls a tool with an interrupt, this will then return an interrupt
+for s in agent.stream(Command(resume=[{"type": "accept"}]), config=config):
+    print(s)
+
+```
+
+#### Edit
+
+To "edit" a tool call means the agent will execute the new tool with the new arguments. You can change both the tool to call or the arguments to pass to that tool.
+
+The `args` parameter you pass back should be a dictionary with two keys:
+
+- `action`: maps to a string which is the name of the tool to call
+- `args`: maps to a dictionary which is the arguments to pass to the tool
+
+This flow shows how to edit a tool call (assuming the tool requiring approval is called):
+
+```python
+config = {"configurable": {"thread_id": "1"}}
+for s in agent.stream({"messages": [{"role": "user", "content": message}]}, config=config):
+    print(s)
+# If this calls a tool with an interrupt, this will then return an interrupt
+# Replace the `...` with the tool name you want to call, and the arguments
+for s in agent.stream(Command(resume=[{"type": "edit", "args": {"action": "...", "args": {...}}}]), config=config):
+    print(s)
+
+```
+
+#### Respond
+
+To "respond" to a tool call means that tool is NOT called. Rather, a tool message is appended with the content you respond with, and the updated messages list is then sent back to the model.
+
+The `args` parameter you pass back should be a string with your response.
+
+This flow shows how to respond to a tool call (assuming the tool requiring approval is called):
+
+```python
+config = {"configurable": {"thread_id": "1"}}
+for s in agent.stream({"messages": [{"role": "user", "content": message}]}, config=config):
+    print(s)
+# If this calls a tool with an interrupt, this will then return an interrupt
+# Replace the `...` with the response to use all the ToolMessage content
+for s in agent.stream(Command(resume=[{"type": "response", "args": "..."}]), config=config):
+    print(s)
+
+```
 
 ## MCP
 
