@@ -33,7 +33,7 @@ def create_configurable_agent(
         config = AgentConfig(**config_fields)
         return create_deep_agent(
             instructions=config.instructions,
-            tools=tools,
+            tools=[t for t in tools if t.name in config.tools],
             subagents=config.subagents,
             config_schema=AgentConfig
         ).with_config(agent_config or {})
