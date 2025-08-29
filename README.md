@@ -101,17 +101,19 @@ class SubAgent(TypedDict):
     description: str
     prompt: str
     tools: NotRequired[list[str]]
+    model_settings: NotRequired[dict[str, Any]]
 ```
 
 - **name**: This is the name of the subagent, and how the main agent will call the subagent
 - **description**: This is the description of the subagent that is shown to the main agent
 - **prompt**: This is the prompt used for the subagent
 - **tools**: This is the list of tools that the subagent has access to. By default will have access to all tools passed in, as well as all built-in tools.
+- **model_settings**: Optional dictionary for per-subagent model configuration (inherits the main model when omitted).
 
 To use it looks like:
 
 ```python
-research_sub_agent = {
+research_subagent = {
     "name": "research-agent",
     "description": "Used to research more in depth questions",
     "prompt": sub_research_prompt,
@@ -127,6 +129,18 @@ agent = create_deep_agent(
 ### `model` (Optional)
 
 By default, `deepagents` uses `"claude-sonnet-4-20250514"`. You can customize this by passing any [LangChain model object](https://python.langchain.com/docs/integrations/chat/).
+
+### `builtin_tools` (Optional)
+
+By default, a deep agent will have access to a number of [built-in tools](#builtintools--optional-).
+You can change this by specifying the tools (by name) that the agent should have access to with this parameter.
+
+Example:
+```python
+# Only give agent access to todo tool, none of the filesystem tools
+builtin_tools = ["write_todos"]
+agent = create_deep_agent(..., builtin_tools=builtin_tools, ...)
+```
 
 #### Example: Using a Custom Model
 
@@ -147,6 +161,32 @@ agent = create_deep_agent(
     instructions=instructions,
     model=model,
     ...
+)
+```
+
+#### Example: Per-subagent model override (optional)
+
+Use a fast, deterministic model for a critique sub-agent, while keeping a different default model for the main agent and others:
+
+```python
+from deepagents import create_deep_agent
+
+critique_sub_agent = {
+    "name": "critique-agent",
+    "description": "Critique the final report",
+    "prompt": "You are a tough editor.",
+    "model_settings": {
+        "model": "anthropic:claude-3-5-haiku-20241022",
+        "temperature": 0,
+        "max_tokens": 8192
+    }
+}
+
+agent = create_deep_agent(
+    tools=[internet_search],
+    instructions="You are an expert researcher...",
+    model="claude-sonnet-4-20250514",  # default for main agent and other sub-agents
+    subagents=[critique_sub_agent],
 )
 ```
 
@@ -201,6 +241,51 @@ You can also specify [custom sub agents](#subagents-optional) with their own ins
 Sub agents are useful for ["context quarantine"](https://www.dbreunig.com/2025/06/26/how-to-fix-your-context.html#context-quarantine) (to help not pollute the overall context of the main agent)
 as well as custom instructions.
 
+### Built In Tools
+
+By default, deep agents come with five built-in tools:
+
+- `write_todos`: Tool for writing todos
+- `write_file`: Tool for writing to a file in the virtual filesystem
+- `read_file`: Tool for reading from a file in the virtual filesystem
+- `ls`: Tool for listing files in the virtual filesystem
+- `edit_file`: Tool for editing a file in the virtual filesystem
+
+These can be disabled via the [`builtin_tools`](#builtintools--optional-) parameter.
+
+### Tool Interrupts
+
+`deepagents` supports human-in-the-loop approval for tool execution. You can configure specific tools to require human approval before execution using the `interrupt_config` parameter. You can also customize the message prefix shown to users for each tool when approval is required.
+
+The interrupt configuration uses four boolean parameters:
+- `allow_ignore`: Whether the user can skip the tool call
+- `allow_respond`: Whether the user can add a text response
+- `allow_edit`: Whether the user can edit the tool arguments
+- `allow_accept`: Whether the user can accept the tool call
+
+Example usage:
+
+```python
+from deepagents import create_deep_agent
+from langgraph.prebuilt.interrupt import HumanInterruptConfig
+
+# Create agent with file operations requiring approval
+agent = create_deep_agent(
+    tools=[your_tools],
+    instructions="Your instructions here",
+    interrupt_config={
+        "write_file": HumanInterruptConfig(
+            allow_ignore=False,
+            allow_respond=False,
+            allow_edit=False,
+            allow_accept=True,
+        ),
+    }
+)
+```
+
+When a tool call requires approval, the agent will pause and wait for human input before proceeding. The message shown to users will include your custom prefix (or "Tool execution requires approval" by default) followed by the tool name and arguments. Multiple tool calls are processed in parallel, allowing you to review and approve multiple operations at once.
+
 ## MCP
 
 The `deepagents` library can be ran with MCP tools. This can be achieved by using the [Langchain MCP Adapter library](https://github.com/langchain-ai/langchain-mcp-adapters).
@@ -237,4 +322,3 @@ asyncio.run(main())
 - [ ] Allow for more of a robust virtual filesystem
 - [ ] Create an example of a deep coding agent built on top of this
 - [ ] Benchmark the example of [deep research agent](examples/research/research_agent.py)
-- [ ] Add human-in-the-loop support for tools
