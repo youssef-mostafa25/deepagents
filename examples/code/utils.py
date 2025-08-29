@@ -1,17 +1,11 @@
-import os
 from typing import List
 from pydantic import BaseModel, Field
 from langchain_anthropic import ChatAnthropic
 from langchain_core.output_parsers import PydanticOutputParser
 
-# Initialize Anthropic client
-try:
-    anthropic_client = ChatAnthropic(
-        model="claude-3-5-sonnet-20241022",
-        anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY")
-    )
-except Exception:
-    anthropic_client = None
+anthropic_client = ChatAnthropic(
+    model="claude-3-5-sonnet-20241022"
+)
 
 # Safety validation model for shell commands
 class CommandSafetyValidation(BaseModel):

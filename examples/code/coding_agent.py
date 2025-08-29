@@ -8,11 +8,9 @@ from pathlib import Path
 
 from tavily import TavilyClient
 from deepagents import create_deep_agent, SubAgent
-from post_model_hook import create_coding_agent_post_model_hook
 from utils import validate_command_safety
 from subagents import code_reviewer_agent, test_generator_agent
 from langgraph.types import Command
-from state import CodingAgentState
 from coding_instructions import get_coding_instructions
 
 # LangSmith tracing imports
@@ -22,24 +20,6 @@ from langchain_core.tracers.langchain import LangChainTracer
 import dotenv
 
 dotenv.load_dotenv()
-
-# Define the target directory for the coding agent
-# TARGET_DIRECTORY = os.environ.get("OPEN_SWE_LOCAL_PROJECT_PATH")
-
-# Initialize LangSmith client and tracing
-langsmith_client = None
-langchain_tracer = None
-
-# Initialize LangSmith if API key is available
-if os.environ.get("LANGCHAIN_API_KEY"):
-    try:
-        langsmith_client = Client()
-        langchain_tracer = LangChainTracer(
-            project_name=os.environ.get("LANGCHAIN_PROJECT", "coding-agent"),
-            client=langsmith_client
-        )
-    except Exception as e:
-        print(f"Warning: Failed to initialize LangSmith tracing: {e}")
 
 tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
 
@@ -211,21 +191,12 @@ def web_search(
 # Get coding instructions from separate file
 coding_instructions = get_coding_instructions()
 
-# Create the post model hook
-post_model_hook = create_coding_agent_post_model_hook()
-
 # Create the coding agent with interrupt handling and LangSmith tracing
 config = {"recursion_limit": 1000}
-
-# Add LangSmith tracer to config if available
-if langchain_tracer:
-    config["callbacks"] = [langchain_tracer]
 
 agent = create_deep_agent(
     [execute_bash, http_request, web_search],
     coding_instructions,
     subagents=[code_reviewer_agent, test_generator_agent],
     local_filesystem=True,
-    state_schema=CodingAgentState,
-    post_model_hook=post_model_hook,
 ).with_config(config)
