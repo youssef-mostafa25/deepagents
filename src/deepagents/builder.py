@@ -25,8 +25,11 @@ def create_configurable_agent(
         subagents: list[SerializableSubAgent] = default_sub_agents
         tools: list[str] = tool_names
 
-    def build_agent(config):
-        config = config.get("configurable", {})
+    def build_agent(config: Optional[dict] = None):
+        if config is not None:
+            config = config.get("configurable", {})
+        else:
+            config = {}
         config_fields = {
             k: v for k, v in config.items() if k in ["instructions", "subagents"]
         }
