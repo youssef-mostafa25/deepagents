@@ -135,7 +135,7 @@ def create_deep_agent(
         post_model_hook: Custom post model hook
         checkpointer: Optional checkpointer for persisting agent state between runs.
     """
-    _agent_builder(
+    return _agent_builder(
         tools=tools,
         instructions=instructions,
         model=model,
@@ -187,7 +187,7 @@ def async_create_deep_agent(
         post_model_hook: Custom post model hook
         checkpointer: Optional checkpointer for persisting agent state between runs.
     """
-    _agent_builder(
+    return _agent_builder(
         tools=tools,
         instructions=instructions,
         model=model,
