@@ -11,17 +11,18 @@ from langgraph.prebuilt.interrupt import (
 
 ToolInterruptConfig = Dict[str, HumanInterruptConfig]
 
+
 def create_interrupt_hook(
     tool_configs: ToolInterruptConfig,
     message_prefix: str = "Tool execution requires approval",
 ) -> callable:
     """Create a post model hook that handles interrupts using native LangGraph schemas.
-    
+
     Args:
         tool_configs: Dict mapping tool names to HumanInterruptConfig objects
         message_prefix: Optional message prefix for interrupt descriptions
     """
-    
+
     def interrupt_hook(state: Dict[str, Any]) -> Dict[str, Any]:
         """Post model hook that checks for tool calls and triggers interrupts if needed."""
         messages = state.get("messages", [])
@@ -36,7 +37,7 @@ def create_interrupt_hook(
         # Separate tool calls that need interrupts from those that don't
         interrupt_tool_calls = []
         auto_approved_tool_calls = []
-        
+
         for tool_call in last_message.tool_calls:
             tool_name = tool_call["name"]
             if tool_name in tool_configs:
@@ -52,7 +53,7 @@ def create_interrupt_hook(
 
         # Process all tool calls that need interrupts in parallel
         requests = []
-        
+
         for tool_call in interrupt_tool_calls:
             tool_name = tool_call["name"]
             tool_args = tool_call["args"]
@@ -70,10 +71,10 @@ def create_interrupt_hook(
             requests.append(request)
 
         responses: List[HumanResponse] = interrupt(requests)
-        
+
         for i, response in enumerate(responses):
             tool_call = interrupt_tool_calls[i]
-            
+
             if response["type"] == "accept":
                 approved_tool_calls.append(tool_call)
             elif response["type"] == "edit":
@@ -92,5 +93,3 @@ def create_interrupt_hook(
         return {"messages": [last_message]}
 
     return interrupt_hook
-
-
