@@ -338,6 +338,8 @@ build_agent = create_configurable_agent(
 ```
 You can now use `build_agent` in your `langgraph.json` and deploy it with `langgraph dev`
 
+For async tools, you can use `from deepagents import async_create_configurable_agent`
+
 
 ## Roadmap
 - [ ] Allow users to customize full system prompt
