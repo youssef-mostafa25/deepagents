@@ -285,10 +285,14 @@ agent = create_deep_agent(
 ```
 
 When a tool call requires approval, the agent will pause and wait for human input before proceeding. The message shown to users will include your custom prefix (or "Tool execution requires approval" by default) followed by the tool name and arguments. Multiple tool calls are processed in parallel, allowing you to review and approve multiple operations at once.
+## Async
 
+If you are passing async tools to your agent, you will want to `from deepagents import async_create_deep_agent`
 ## MCP
 
 The `deepagents` library can be ran with MCP tools. This can be achieved by using the [Langchain MCP Adapter library](https://github.com/langchain-ai/langchain-mcp-adapters).
+
+**NOTE:** will want to use `from deepagents import async_create_deep_agent` to use the async version of `deepagents`, since MCP tools are async
 
 (To run the example below, will need to `pip install langchain-mcp-adapters`)
 
@@ -303,7 +307,7 @@ async def main():
     mcp_tools = await mcp_client.get_tools()
 
     # Create agent
-    agent = create_deep_agent(tools=mcp_tools, ....)
+    agent = async_create_deep_agent(tools=mcp_tools, ....)
 
     # Stream the agent
     async for chunk in agent.astream(
