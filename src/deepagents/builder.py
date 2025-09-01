@@ -1,4 +1,5 @@
 from deepagents import create_deep_agent, async_create_deep_agent, SubAgent
+from langchain_core.tools import BaseTool, tool
 from pydantic import BaseModel
 from typing import Any, Optional
 from typing_extensions import TypedDict, NotRequired
@@ -18,7 +19,9 @@ def create_configurable_agent(
     default_sub_agents: list[SerializableSubAgent],
     tools,
     agent_config: Optional[dict] = None,
+    **kwargs,
 ):
+    tools = [t if isinstance(t, BaseTool) else tool(t) for t in tools]
     tool_names = [t.name for t in tools]
 
     class AgentConfig(BaseModel):
@@ -40,6 +43,7 @@ def create_configurable_agent(
             tools=[t for t in tools if t.name in config.tools],
             subagents=config.subagents,
             config_schema=AgentConfig,
+            **kwargs,
         ).with_config(agent_config or {})
 
     return build_agent
@@ -50,7 +54,9 @@ def async_create_configurable_agent(
     default_sub_agents: list[SerializableSubAgent],
     tools,
     agent_config: Optional[dict] = None,
+    **kwargs,
 ):
+    tools = [t if isinstance(t, BaseTool) else tool(t) for t in tools]
     tool_names = [t.name for t in tools]
 
     class AgentConfig(BaseModel):
@@ -72,6 +78,7 @@ def async_create_configurable_agent(
             tools=[t for t in tools if t.name in config.tools],
             subagents=config.subagents,
             config_schema=AgentConfig,
-        ).with_config(agent_config or {})
+            **kwargs,
+        ).with_config(agent_config or {"recursion_limit": 1000})
 
     return build_agent
