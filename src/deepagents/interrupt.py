@@ -25,7 +25,7 @@ def create_interrupt_hook(
     # Right now we don't properly handle `ignore`
     for tool, interrupt_config in tool_configs.items():
         if isinstance(interrupt_config, dict):
-            if 'allow_ignore' in interrupt_config and interrupt_config['allow_ignore']:
+            if "allow_ignore" in interrupt_config and interrupt_config["allow_ignore"]:
                 raise ValueError(
                     f"For {tool} we get `allow_ignore = True` - we currently don't support `ignore`."
                 )
@@ -69,25 +69,30 @@ def create_interrupt_hook(
         tool_args = tool_call["args"]
         description = f"{message_prefix}\n\nTool: {tool_name}\nArgs: {tool_args}"
         tool_config = tool_configs[tool_name]
-        default_tool_config: HumanInterruptConfig = {"allow_accept": True, "allow_edit": True, "allow_respond": True, "allow_ignore": False}
+        default_tool_config: HumanInterruptConfig = {
+            "allow_accept": True,
+            "allow_edit": True,
+            "allow_respond": True,
+            "allow_ignore": False,
+        }
 
         request: HumanInterrupt = {
             "action_request": ActionRequest(
                 action=tool_name,
                 args=tool_args,
             ),
-            "config": tool_config if isinstance(tool_config, dict) else default_tool_config,
+            "config": tool_config
+            if isinstance(tool_config, dict)
+            else default_tool_config,
             "description": description,
         }
 
         responses: List[HumanResponse] = interrupt([request])
 
         if len(responses) != 1:
-            raise ValueError(
-                f"Expected a list of one response, got {responses}"
-            )
+            raise ValueError(f"Expected a list of one response, got {responses}")
         response = responses[0]
-            
+
         if response["type"] == "accept":
             approved_tool_calls.append(tool_call)
         elif response["type"] == "edit":
@@ -102,8 +107,8 @@ def create_interrupt_hook(
         elif response["type"] == "response":
             response_message = {
                 "type": "tool",
-                "tool_call_id": tool_call['id'],
-                "content": response['args']
+                "tool_call_id": tool_call["id"],
+                "content": response["args"],
             }
             return {"messages": [response_message]}
         else:

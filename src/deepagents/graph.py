@@ -146,7 +146,7 @@ def create_deep_agent(
         config_schema=config_schema,
         checkpointer=checkpointer,
         post_model_hook=post_model_hook,
-        is_async=False
+        is_async=False,
     )
 
 
@@ -198,5 +198,5 @@ def async_create_deep_agent(
         config_schema=config_schema,
         checkpointer=checkpointer,
         post_model_hook=post_model_hook,
-        is_async=True
+        is_async=True,
     )
