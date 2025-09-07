@@ -149,7 +149,8 @@ def create_deep_agent(
         post_model_hook: Custom post model hook
         checkpointer: Optional checkpointer for persisting agent state between runs.
         main_agent_tools: Optional list of tool names that the main agent should have. If not provided,
-            will have access to all tools
+            will have access to all tools. Note that built-in tools (for filesystem and todo and subagents) are
+            always included - this filtering only applies to passed in tools.
     """
     return _agent_builder(
         tools=tools,
@@ -205,7 +206,8 @@ def async_create_deep_agent(
         post_model_hook: Custom post model hook
         checkpointer: Optional checkpointer for persisting agent state between runs.
         main_agent_tools: Optional list of tool names that the main agent should have. If not provided,
-            will have access to all tools
+            will have access to all tools. Note that built-in tools (for filesystem and todo and subagents) are
+            always included - this filtering only applies to passed in tools.
     """
     return _agent_builder(
         tools=tools,
