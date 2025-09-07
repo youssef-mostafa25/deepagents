@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+deepagents = "*"
+tavily-python = "*"
+fastapi = "*"
+langchain = "*"
+google-genai = "*"
+langchain-google-genai = "*"
+uvicorn = "*"
+python-dotenv = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.13"
